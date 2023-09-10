@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm() {
-  const [selectedOptions, setSelectedOptions] = useState({
-    option1: "",
-    option2: "",
-  });
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
