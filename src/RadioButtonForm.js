@@ -10,18 +10,13 @@ function RadioButtonForm(props) {
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setSelectedOptions({
-      ...selectedOptions,
-      [name]: value,
-    });
-    console.log({
       ...selectedOptions,
       [name]: value,
     });
   };
 
-  const memoQuestion = useMemo(() => {
+  const memoQuestions = useMemo(() => {
     if (questions.length > 0) {
       return questions.map((item, idx) => (
         <RadioButtonGroup
@@ -36,7 +31,7 @@ function RadioButtonForm(props) {
       return <div>該当するアイテムはありません</div>;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions]);
+  }, [questions, selectedOptions]);
 
   return (
     <form
@@ -44,7 +39,7 @@ function RadioButtonForm(props) {
         console.log("submitted");
       }}
     >
-      {memoQuestion}
+      {memoQuestions}
       <button type="submit">送信</button>
     </form>
   );
