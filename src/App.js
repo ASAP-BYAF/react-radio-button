@@ -1,11 +1,11 @@
-import logo from "./logo.svg";
 import "./App.css";
-import RadioButtonForm from "./RadioButtonForm";
+// import RadioButtonForm from "./RadioButtonForm";
+import RadioButtonFormValue from "./RadioButtonFormValue";
 
 function App() {
   return (
     <div className="App">
-      <RadioButtonForm />
+      <RadioButtonFormValue />
     </div>
   );
 }

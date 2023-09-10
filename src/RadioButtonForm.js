@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from "react";
 import RadioButtonGroup from "./RadioButtonGroup";
 
-function RadioButtonForm() {
-  const questionLists = ["option1", "option2"];
+function RadioButtonForm(props) {
+  // const { questions, options } = props;
   const [selectedOptions, setSelectedOptions] = useState({});
-  // const [selectedOptions, setSelectedOptions] = useState({
-  //   option1: "",
-  //   option2: "",
-  // });
+  const questions = ["option1", "option2"];
+  const options = ["Option1", "Option2", "Option3"];
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
@@ -17,19 +15,11 @@ function RadioButtonForm() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // フォームが送信された際の処理をここに追加します
-    console.log("選択したオプション1:", selectedOptions.option1);
-    console.log("選択したオプション2:", selectedOptions.option2);
-  };
-
-  const options = ["Option 1", "Option 2", "Option 3"];
-
   const memoItemList = useMemo(() => {
-    if (questionLists.length > 0) {
-      return questionLists.map((item, index) => (
+    if (questions.length > 0) {
+      return questions.map((item, idx) => (
         <RadioButtonGroup
+          key={idx}
           questionName={item}
           options={options}
           selectedOption={selectedOptions}
@@ -40,10 +30,14 @@ function RadioButtonForm() {
       return <div>該当するアイテムはありません</div>;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questionLists]);
+  }, [questions]);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={() => {
+        console.log("submitted");
+      }}
+    >
       {memoItemList}
       <button type="submit">送信</button>
     </form>
