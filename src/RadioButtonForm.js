@@ -10,7 +10,12 @@ function RadioButtonForm(props) {
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
     setSelectedOptions({
+      ...selectedOptions,
+      [name]: value,
+    });
+    console.log({
       ...selectedOptions,
       [name]: value,
     });
