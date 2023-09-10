@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm() {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -21,52 +22,25 @@ function RadioButtonForm() {
     console.log("選択したオプション2:", selectedOptions.option2);
   };
 
+  const options = ["Option 1", "Option 2", "Option 3"];
+  // const [selectedOption, setSelectedOption] = useState("");
+  // const handleOptionChange2 = (event) => {
+  //   setSelectedOption(event.target.value);
+  // };
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          質問1: オプション1
-          <input
-            type="radio"
-            name="option1"
-            value="option1"
-            checked={selectedOptions.option1 === "option1"}
-            onChange={handleOptionChange}
-          />
-        </label>
-        <label>
-          オプション2
-          <input
-            type="radio"
-            name="option1"
-            value="option2"
-            checked={selectedOptions.option1 === "option2"}
-            onChange={handleOptionChange}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          質問2: オプションA
-          <input
-            type="radio"
-            name="option2"
-            value="optionA"
-            checked={selectedOptions.option2 === "optionA"}
-            onChange={handleOptionChange}
-          />
-        </label>
-        <label>
-          オプションB
-          <input
-            type="radio"
-            name="option2"
-            value="optionB"
-            checked={selectedOptions.option2 === "optionB"}
-            onChange={handleOptionChange}
-          />
-        </label>
-      </div>
+      <RadioButtonGroup
+        questionName="option1"
+        options={options}
+        selectedOption={selectedOptions}
+        onChange={handleOptionChange}
+      />
+      <RadioButtonGroup
+        questionName="option2"
+        options={options}
+        selectedOption={selectedOptions}
+        onChange={handleOptionChange}
+      />
       <button type="submit">送信</button>
     </form>
   );
