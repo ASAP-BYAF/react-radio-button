@@ -3,10 +3,11 @@ import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm(props) {
   const { questions, options } = props;
-  const [selectedOptions, setSelectedOptions] = useState({});
-  // const questions = ["option1", "option2"];
-  // const options = ["Option1", "Option2", "Option3"];
-  console.log(questions, options);
+  const [selectedOptions, setSelectedOptions] = useState(
+    questions.reduce((accumulator, value) => {
+      return { ...accumulator, [value]: options[0] };
+    }, {})
+  );
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
