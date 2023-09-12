@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm(props) {
+  console.log("childBegin");
   const { questions, options } = props;
   const [selectedOptions, setSelectedOptions] = useState(
     questions.reduce((accumulator, value) => {
@@ -23,8 +24,10 @@ function RadioButtonForm(props) {
       ...selectedOptions,
       [name]: value,
     });
-    console.log("handleOptionChange");
+    console.log("handleOptionChange ");
   };
+
+  console.log("OK");
 
   const updateQuestionOrder = () => {
     const tmp = initQuestionsGroupByOptions;
@@ -34,11 +37,11 @@ function RadioButtonForm(props) {
     }
     setQuestionsGroupByOptions(tmp);
     console.log("setQuestionsGroupByOptions");
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
+  console.log("OK2");
 
   const memoQuestions = useMemo(() => {
+    console.log("memoQuestion");
     updateQuestionOrder();
     const bbb = [];
     options.forEach((elem, idx) => {
@@ -60,6 +63,8 @@ function RadioButtonForm(props) {
     return bbb;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, selectedOptions]);
+
+  console.log("childEnd");
 
   return (
     <form
