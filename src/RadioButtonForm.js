@@ -23,9 +23,23 @@ function RadioButtonForm(props) {
       ...selectedOptions,
       [name]: value,
     });
+    console.log("handleOptionChange");
+  };
+
+  const updateQuestionOrder = () => {
+    const tmp = initQuestionsGroupByOptions;
+    const entries = Object.entries(selectedOptions);
+    for (const [question, option] of entries) {
+      tmp[option].push(question);
+    }
+    setQuestionsGroupByOptions(tmp);
+    console.log("setQuestionsGroupByOptions");
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const memoQuestions = useMemo(() => {
+    updateQuestionOrder();
     const bbb = [];
     options.forEach((elem, idx) => {
       const target1 = questionsGroupByOptions[elem];
@@ -44,17 +58,6 @@ function RadioButtonForm(props) {
       });
     });
     return bbb;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, selectedOptions]);
-
-  useEffect(() => {
-    const tmp = initQuestionsGroupByOptions;
-    const entries = Object.entries(selectedOptions);
-    for (const [question, option] of entries) {
-      tmp[option].push(question);
-    }
-    setQuestionsGroupByOptions(tmp);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, selectedOptions]);
 
