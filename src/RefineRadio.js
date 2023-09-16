@@ -37,8 +37,17 @@ const RefineRadio = () => {
     setModalConfig(undefined);
     console.log(ret);
     if (ret === "ok") {
-      // removeItem(x, questions, setQuestions, allQuestions, setAllQuestions);
+      removeItem(x, questions, setQuestions);
+      removeItem(x, allQuestions, setAllQuestions);
     }
+  };
+
+  const removeItem = (x, prevList, updateFunc) => {
+    updateFunc(
+      prevList.filter((item) => {
+        return item !== x;
+      })
+    );
   };
 
   const memoQuestions = useMemo(() => {
@@ -66,20 +75,3 @@ const RefineRadio = () => {
 };
 
 export default RefineRadio;
-
-// const removeItem = (x, y, yUpdateFunc, z, zUpdateFunc) => {
-//   console.log(x, y, yUpdateFunc, z, zUpdateFunc);
-//   removeItemPrime(x, y, yUpdateFunc);
-//   removeItemPrime(x, z, zUpdateFunc);
-//   // DB からも削除
-//   // 削除ではなく使わないリストに追加がいいかも。
-//   // 再度必要になった時や誤って削除したときに DB で同じ id で復活できるように。
-// };
-
-// const removeItemPrime = (x, prevList, updateFunc) => {
-//   updateFunc(
-//     prevList.filter((item) => {
-//       return item !== x;
-//     })
-//   );
-// };
