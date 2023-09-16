@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm(props) {
   console.log("childBegin");
-  const { questions, options } = props;
+  const { questions, options, handleDeleteClick = () => {} } = props;
   const [selectedOptions, setSelectedOptions] = useState(
     questions.reduce((accumulator, value) => {
       return { ...accumulator, [value]: options[0] };
@@ -45,13 +45,26 @@ function RadioButtonForm(props) {
       target1.forEach((elem2) => {
         if (questions.includes(elem2)) {
           bbb.push(
-            <RadioButtonGroup
-              key={elem2}
-              questionName={elem2}
-              options={options}
-              selectedOption={selectedOptions}
-              onChange={handleOptionChange}
-            />
+            <div key={elem2}>
+              <RadioButtonGroup
+                key={elem2}
+                questionName={elem2}
+                options={options}
+                selectedOption={selectedOptions}
+                onChange={handleOptionChange}
+              />
+              <button
+                className="deleteButton"
+                type="button"
+                name={elem2}
+                onClick={(e) => {
+                  handleDeleteClick(e.target.name);
+                  console.log("clicked");
+                }}
+              >
+                delete
+              </button>
+            </div>
           );
         }
       });
