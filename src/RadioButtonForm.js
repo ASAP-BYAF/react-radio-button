@@ -9,11 +9,12 @@ function RadioButtonForm(props) {
       return { ...accumulator, [value]: options[0] };
     }, {})
   );
-  const initQuestionsGroupByOptions = options.reduce((accumulator, value) => {
-    return { ...accumulator, [value]: [] };
-  }, {});
-  // console.log("init");
-  // console.log(initQuestionsGroupByOptions);
+  const initQuestionsGroupByOptions = options.reduce(
+    (accumulator, value, idx) => {
+      return { ...accumulator, [value]: idx === 0 ? questions.concat() : [] };
+    },
+    {}
+  );
   const [questionsGroupByOptions, setQuestionsGroupByOptions] = useState(
     initQuestionsGroupByOptions
   );
@@ -24,33 +25,28 @@ function RadioButtonForm(props) {
       ...selectedOptions,
       [name]: value,
     });
-    console.log("handleOptionChange ");
+    setQuestionsGroupByOptions((prev) => updatetmp(prev, name, value));
+  };
+
+  const updatetmp = (prev, name, value) => {
+    const beforeValue = selectedOptions[name];
+    const index = prev[beforeValue].indexOf(name);
+    prev[beforeValue].splice(index, 1);
+    prev[value].push(name);
+    return prev;
   };
 
   console.log("OK");
 
-  const updateQuestionOrder = () => {
-    const tmp = initQuestionsGroupByOptions;
-    const entries = Object.entries(selectedOptions);
-    for (const [question, option] of entries) {
-      tmp[option].push(question);
-    }
-    setQuestionsGroupByOptions(tmp);
-    console.log("setQuestionsGroupByOptions");
-  };
-  console.log("OK2");
-
   const memoQuestions = useMemo(() => {
-    console.log("memoQuestion");
-    updateQuestionOrder();
     const bbb = [];
     options.forEach((elem, idx) => {
       const target1 = questionsGroupByOptions[elem];
-      target1.forEach((elem2, idx2) => {
+      target1.forEach((elem2) => {
         if (questions.includes(elem2)) {
           bbb.push(
             <RadioButtonGroup
-              key={idx.idx2}
+              key={elem2}
               questionName={elem2}
               options={options}
               selectedOption={selectedOptions}
