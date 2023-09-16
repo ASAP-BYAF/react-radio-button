@@ -3,7 +3,13 @@ import RadioButtonGroup from "./RadioButtonGroup";
 
 function RadioButtonForm(props) {
   console.log("childBegin");
-  const { questions, options, handleDeleteClick = () => {} } = props;
+  const {
+    questions,
+    options,
+    handleDeleteClick = () => {},
+    handleRenameClick = () => {},
+  } = props;
+  console.log(`questions = ${questions}`);
   const [selectedOptions, setSelectedOptions] = useState(
     questions.reduce((accumulator, value) => {
       return { ...accumulator, [value]: options[0] };
@@ -63,6 +69,17 @@ function RadioButtonForm(props) {
                 }}
               >
                 delete
+              </button>
+              <button
+                className="renameButton"
+                type="button"
+                name={elem2}
+                onClick={(e) => {
+                  handleRenameClick(e.target.name);
+                  console.log("clicked");
+                }}
+              >
+                rename
               </button>
             </div>
           );
