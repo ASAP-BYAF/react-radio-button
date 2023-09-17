@@ -86,6 +86,28 @@ const RefineRadio = () => {
     // 変更時は確認しなくてもいいと思う。
   };
 
+  const handleAddItem = async () => {
+    if (filterText && !questions.includes(filterText)) {
+      setQuestions((prevs) => [...prevs, filterText]);
+      setAllQuestions((prevs) => [...prevs, filterText]);
+      //　選択肢を DB にも追加する。
+      // const res = await fetch("http://127.0.0.1:8000/tasks");
+      // console.log(res);
+      // if (!res.ok) {
+      //   const errorRes = await res.json();
+      //   const error = new Error(
+      //     errorRes.message ?? "API リクエスト中にエラーが発生しました。"
+      //   );
+
+      //   console.error(error);
+      //   // throw error;
+      //   return;
+      // }
+      // const res2 = await res.json();
+      // console.log(res2);
+    }
+  };
+
   const memoQuestions = useMemo(() => {
     return (
       <RadioButtonForm
@@ -105,6 +127,14 @@ const RefineRadio = () => {
         placeholder="絞り込む文字を入力"
         onChange={handleInputChange}
       />
+      <button
+        className="addQuestionButton"
+        type="button"
+        onClick={handleAddItem}
+      >
+        add
+      </button>
+
       {modalConfig && <MyDialog {...modalConfig} />}
       {modalConfigRename && <MyDialogRename {...modalConfigRename} />}
       {memoQuestions}
