@@ -91,20 +91,28 @@ const RefineRadio = () => {
       setQuestions((prevs) => [...prevs, filterText]);
       setAllQuestions((prevs) => [...prevs, filterText]);
       //　選択肢を DB にも追加する。
-      // const res = await fetch("http://127.0.0.1:8000/tasks");
-      // console.log(res);
-      // if (!res.ok) {
-      //   const errorRes = await res.json();
-      //   const error = new Error(
-      //     errorRes.message ?? "API リクエスト中にエラーが発生しました。"
-      //   );
+      const res = await fetch("http://127.0.0.1:8000/tasks", {
+        method: "POST",
+        body: JSON.stringify({
+          title: filterText,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+      console.log(res);
+      if (!res.ok) {
+        const errorRes = await res.json();
+        const error = new Error(
+          errorRes.message ?? "API リクエスト中にエラーが発生しました。"
+        );
 
-      //   console.error(error);
-      //   // throw error;
-      //   return;
-      // }
-      // const res2 = await res.json();
-      // console.log(res2);
+        console.error(error);
+        // throw error;
+        return;
+      }
+      const res2 = await res.json();
+      console.log(res2);
     }
   };
 
