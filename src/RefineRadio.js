@@ -7,11 +7,12 @@ import { fetcher } from "./api/fetcher.js";
 const RefineRadio = () => {
   // const res = fetcher(url, data);
   // const initialquestions = ["Apple", "Orange", "Banana", "Pineapple"];
-  const initialquestions = [];
-  const [questions, setQuestions] = useState(initialquestions);
-  const [allQuestions, setAllQuestions] = useState(initialquestions);
+  const [questions, setQuestions] = useState([]);
+  const [questionsDiff, setQuestionsDiff] = useState([]);
+  const [allQuestions, setAllQuestions] = useState([]);
   const [filterText, setFilterText] = useState("");
 
+  // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
   useEffect(() => {
     const fetchData = async () => {
@@ -23,14 +24,45 @@ const RefineRadio = () => {
         //   return { ...accumulator, [value2["title"]]: value2["id"] };
         // }, {});
         const tmp = res.map((value2) => value2["title"]);
-        setQuestions(tmp); // res のデータをセット
+        // setQuestions(tmp); // res のデータをセット
+        const diff = updateQuestions(tmp, "added");
+        console.log(diff);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 質問の追加、削除、変更時に現在表示している質問とすべての質問を更新。
+  // また、前回との差分を計算。
+  const updateQuestions = (x, sign) => {
+    // x は配列を想定。
+    if (sign === "added") {
+      // 最初の DB からとってくるときのみ x の長さは 1 とは限らない。
+      // そのため、diff = x[0] ではだめ。
+      const diff = x.filter((value) => {
+        return !questions.includes(value);
+      });
+      setQuestions((prev) => [...prev, ...x]);
+      setAllQuestions((prev) => [...prev, ...x]);
+      setQuestionsDiff([sign, diff]);
+    } else if (sign === "deleted") {
+      const diff = x[0];
+      removeItem(diff, questions, setQuestions);
+      removeItem(diff, allQuestions, setAllQuestions);
+      setQuestionsDiff([sign, diff]);
+      // setQuestionsDiff([sign, diff]);
+    } else {
+      return "renamed";
+    }
+  };
+  console.log("questions");
+  console.log(questions);
+  console.log("allQuestions");
+  console.log(allQuestions);
 
   const handleInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
@@ -62,8 +94,7 @@ const RefineRadio = () => {
     setModalConfig(undefined);
     console.log(ret);
     if (ret === "ok") {
-      removeItem(x, questions, setQuestions);
-      removeItem(x, allQuestions, setAllQuestions);
+      updateQuestions([x], "deleted");
     }
   };
 
@@ -111,8 +142,7 @@ const RefineRadio = () => {
 
   const handleAddItem = async () => {
     if (filterText && !questions.includes(filterText)) {
-      setQuestions((prevs) => [...prevs, filterText]);
-      setAllQuestions((prevs) => [...prevs, filterText]);
+      updateQuestions([filterText], "added");
       //　選択肢を DB にも追加する。
       // const url = "http://127.0.0.1:8000/tasks";
       // const data = {
@@ -133,6 +163,7 @@ const RefineRadio = () => {
     return (
       <RadioButtonForm
         questions={questions}
+        questionsDiff={questionsDiff}
         options={options}
         handleDeleteClick={handleDeleteClick}
         handleRenameClick={handleRenameClick}
