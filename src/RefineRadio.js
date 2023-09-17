@@ -1,13 +1,36 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { MyDialog } from "./myDialog.js";
 import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm from "./RadioButtonForm";
+import { fetcher } from "./api/fetcher.js";
 
 const RefineRadio = () => {
-  const initialquestions = ["Apple", "Orange", "Banana", "Pineapple"];
+  // const res = fetcher(url, data);
+  // const initialquestions = ["Apple", "Orange", "Banana", "Pineapple"];
+  const initialquestions = [];
   const [questions, setQuestions] = useState(initialquestions);
   const [allQuestions, setAllQuestions] = useState(initialquestions);
   const [filterText, setFilterText] = useState("");
+
+  // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const url = "http://127.0.0.1:8000/tasks";
+        const data = { method: "GET" };
+        const res = await fetcher(url, data);
+        // const tmp = res.reduce((accumulator, value2) => {
+        //   return { ...accumulator, [value2["title"]]: value2["id"] };
+        // }, {});
+        const tmp = res.map((value2) => value2["title"]);
+        setQuestions(tmp); // res のデータをセット
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
@@ -15,13 +38,13 @@ const RefineRadio = () => {
     const filteredquestions = allQuestions.filter((item) =>
       item.toLowerCase().includes(newText)
     );
-    // 配列の中身を比較。単に questions !== filteredquestions とするだけではだめだった。
+    // 配列の中身を比較。中身が異なるときだけ questions の状態を更新。
+    // 単に questions !== filteredquestions とするだけではだめだった。
     if (JSON.stringify(questions) !== JSON.stringify(filteredquestions)) {
       setQuestions(filteredquestions);
     }
   };
 
-  //   const questions = ["option1", "option2"];
   const options = ["Option1", "Option2", "Option3"];
 
   const [modalConfig, setModalConfig] = useState(undefined);
@@ -91,28 +114,18 @@ const RefineRadio = () => {
       setQuestions((prevs) => [...prevs, filterText]);
       setAllQuestions((prevs) => [...prevs, filterText]);
       //　選択肢を DB にも追加する。
-      const res = await fetch("http://127.0.0.1:8000/tasks", {
-        method: "POST",
-        body: JSON.stringify({
-          title: filterText,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      });
-      console.log(res);
-      if (!res.ok) {
-        const errorRes = await res.json();
-        const error = new Error(
-          errorRes.message ?? "API リクエスト中にエラーが発生しました。"
-        );
-
-        console.error(error);
-        // throw error;
-        return;
-      }
-      const res2 = await res.json();
-      console.log(res2);
+      // const url = "http://127.0.0.1:8000/tasks";
+      // const data = {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     title: filterText,
+      //   }),
+      //   headers: {
+      //     "Content-type": "application/json; charset=UTF-8",
+      //   },
+      // };
+      // const res = await fetcher(url, data);
+      // console.log(res);
     }
   };
 
