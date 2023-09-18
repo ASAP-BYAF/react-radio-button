@@ -4,10 +4,9 @@ import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
 import { deleteItemFromArray } from "./util/delete.js";
+import { renameItemInArray } from "./util/rename.js";
 
 const RefineRadio = () => {
-  // const res = fetcher(url, data);
-  // const initialquestions = ["Apple", "Orange", "Banana", "Pineapple"];
   const [questions, setQuestions] = useState([]);
   const [questionsDiff, setQuestionsDiff] = useState([]);
   const [allQuestions, setAllQuestions] = useState([]);
@@ -21,9 +20,6 @@ const RefineRadio = () => {
         const url = "http://127.0.0.1:8000/tasks";
         const data = { method: "GET" };
         const res = await fetcher(url, data);
-        // const tmp = res.reduce((accumulator, value2) => {
-        //   return { ...accumulator, [value2["title"]]: value2["id"] };
-        // }, {});
         const tmp = res.map((value2) => value2["title"]);
         // setQuestions(tmp); // res のデータをセット
         const diff = updateQuestions(tmp, "added");
@@ -55,7 +51,6 @@ const RefineRadio = () => {
       setQuestions((prev) => deleteItemFromArray(prev, diff));
       setAllQuestions((prev) => deleteItemFromArray(prev, diff));
       setQuestionsDiff([sign, diff]);
-      // setQuestionsDiff([sign, diff]);
     } else {
       return "renamed";
     }
@@ -84,7 +79,6 @@ const RefineRadio = () => {
   const [modalConfigRename, setModalConfigRename] = useState(undefined);
 
   const handleDeleteClick = async (x) => {
-    console.log(`${x} is clicked`);
     const ret = await new Promise((resolve) => {
       setModalConfig({
         onClose: resolve,
@@ -93,7 +87,6 @@ const RefineRadio = () => {
       });
     });
     setModalConfig(undefined);
-    console.log(ret);
     if (ret === "ok") {
       updateQuestions([x], "deleted");
     }
@@ -109,28 +102,10 @@ const RefineRadio = () => {
     });
     setModalConfigRename(undefined);
     const ret_trimed = ret.trim();
-    console.log(ret);
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
-      console.log(ret);
-      console.log(x);
-      renameItem(x, ret);
+      setQuestions((prev) => renameItemInArray(prev, x, ret));
+      setAllQuestions((prev) => renameItemInArray(prev, x, ret));
     }
-  };
-
-  const renameItem = (x, x_prime) => {
-    const x_idx_in_items = questions.indexOf(x);
-    setQuestions(
-      questions.map((item, index) =>
-        index === x_idx_in_items ? x_prime : item
-      )
-    );
-    setAllQuestions(
-      allQuestions.map((item, index) =>
-        index === x_idx_in_items ? x_prime : item
-      )
-    );
-    // DB 上でも変更
-    // 変更時は確認しなくてもいいと思う。
   };
 
   const handleAddItem = async () => {
