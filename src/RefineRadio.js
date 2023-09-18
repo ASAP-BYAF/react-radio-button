@@ -11,6 +11,7 @@ const RefineRadio = () => {
   const [questionsDiff, setQuestionsDiff] = useState([]);
   const [allQuestions, setAllQuestions] = useState([]);
   const [filterText, setFilterText] = useState("");
+  const options = ["Option1", "Option2", "Option3"];
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
@@ -51,7 +52,12 @@ const RefineRadio = () => {
       setQuestions((prev) => deleteItemFromArray(prev, diff));
       setAllQuestions((prev) => deleteItemFromArray(prev, diff));
       setQuestionsDiff([sign, diff]);
-    } else {
+    } else if (sign === "renamed") {
+      const oldValue = x[0];
+      const newValue = x[1];
+      setQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
+      setAllQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
+      setQuestionsDiff([sign, [oldValue, newValue]]);
       return "renamed";
     }
   };
@@ -72,8 +78,6 @@ const RefineRadio = () => {
       setQuestions(filteredquestions);
     }
   };
-
-  const options = ["Option1", "Option2", "Option3"];
 
   const [modalConfig, setModalConfig] = useState(undefined);
   const [modalConfigRename, setModalConfigRename] = useState(undefined);
@@ -103,8 +107,7 @@ const RefineRadio = () => {
     setModalConfigRename(undefined);
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
-      setQuestions((prev) => renameItemInArray(prev, x, ret));
-      setAllQuestions((prev) => renameItemInArray(prev, x, ret));
+      updateQuestions([x, ret], "renamed");
     }
   };
 

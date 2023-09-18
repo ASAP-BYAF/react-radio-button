@@ -1,5 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import RadioButtonGroup from "./RadioButtonGroup";
+import {
+  deleteItemFromObject,
+  deleteItemFromArrayInObject,
+} from "./util/delete";
+import { renameItemInArrayInObject, renameKeyInObject } from "./util/rename";
 
 function RadioButtonForm(props) {
   console.log("childBegin");
@@ -48,10 +53,19 @@ function RadioButtonForm(props) {
         }, {})
       );
     } else if (sign === "deleted") {
-      console.log(`${sign} is selected`);
-      const value = selectedOptions[diff];
-      setQuestionsGroupByOptions((prev) => deletetmp2(prev, diff, value));
-      setSelectedOptions((prev) => deletetmp(prev, diff));
+      const selectedOption = selectedOptions[diff];
+      setQuestionsGroupByOptions((prev) =>
+        deleteItemFromArrayInObject(prev, selectedOption, diff)
+      );
+      setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
+    } else if (sign === "renamed") {
+      const oldValue = diff[0];
+      const newValue = diff[1];
+      const selectedOption = selectedOptions[oldValue];
+      setQuestionsGroupByOptions((prev) =>
+        renameItemInArrayInObject(prev, selectedOption, oldValue, newValue)
+      );
+      setSelectedOptions((prev) => renameKeyInObject(prev, oldValue, newValue));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionsDiff]);
@@ -82,17 +96,6 @@ function RadioButtonForm(props) {
     const index = prev[beforeValue].indexOf(name);
     prev[beforeValue].splice(index, 1);
     prev[value].push(name);
-    return prev;
-  };
-
-  const deletetmp = (prev, name) => {
-    delete prev[name];
-    return prev;
-  };
-
-  const deletetmp2 = (prev, name, value) => {
-    const index = prev[value].indexOf(name);
-    prev[value].splice(index, 1);
     return prev;
   };
 

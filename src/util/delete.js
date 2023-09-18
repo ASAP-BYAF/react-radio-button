@@ -14,6 +14,6 @@ export const deleteItemFromObject = (prev, key) => {
 
 // { key1: [array1], key2: [array2], ...} というオブジェクトの配列からある値を削除する。
 export const deleteItemFromArrayInObject = (obj, key, x) => {
-  deleteItemFromArray(obj[key], x);
+  obj[key] = deleteItemFromArray(obj[key], x);
   return obj;
 };
