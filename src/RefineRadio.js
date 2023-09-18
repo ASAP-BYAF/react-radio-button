@@ -3,6 +3,7 @@ import { MyDialog } from "./myDialog.js";
 import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
+import { deleteItemFromArray } from "./util/delete.js";
 
 const RefineRadio = () => {
   // const res = fetcher(url, data);
@@ -51,8 +52,8 @@ const RefineRadio = () => {
       setQuestionsDiff([sign, diff]);
     } else if (sign === "deleted") {
       const diff = x[0];
-      removeItem(diff, questions, setQuestions);
-      removeItem(diff, allQuestions, setAllQuestions);
+      setQuestions((prev) => deleteItemFromArray(prev, diff));
+      setAllQuestions((prev) => deleteItemFromArray(prev, diff));
       setQuestionsDiff([sign, diff]);
       // setQuestionsDiff([sign, diff]);
     } else {
@@ -96,14 +97,6 @@ const RefineRadio = () => {
     if (ret === "ok") {
       updateQuestions([x], "deleted");
     }
-  };
-
-  const removeItem = (x, prevList, updateFunc) => {
-    updateFunc(
-      prevList.filter((item) => {
-        return item !== x;
-      })
-    );
   };
 
   const handleRenameClick = async (x) => {
