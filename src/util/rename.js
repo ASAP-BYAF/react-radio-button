@@ -16,7 +16,7 @@ export const renameItemInArray = (array, x, x_prime) => {
 export const renameKeyInObject = (obj, x, x_prime) => {
   const value = obj[x];
   const obj_ = deleteItemFromObject(obj, x);
-  obj_[value] = x_prime;
+  obj_[x_prime] = value;
   return obj_;
 };
 
