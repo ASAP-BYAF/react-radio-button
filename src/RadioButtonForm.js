@@ -5,6 +5,11 @@ import {
   deleteItemFromArrayInObject,
 } from "./util/delete";
 import { renameItemInArrayInObject, renameKeyInObject } from "./util/rename";
+import {
+  arrayToObject,
+  concatArraytoArrayInObject,
+  concatObject,
+} from "./util/add";
 
 function RadioButtonForm(props) {
   console.log("childBegin");
@@ -18,9 +23,10 @@ function RadioButtonForm(props) {
   console.log(`questions = ${questions}`);
 
   const [selectedOptions, setSelectedOptions] = useState(
-    questions.reduce((accumulator, value) => {
-      return { ...accumulator, [value]: options[0] };
-    }, {})
+    arrayToObject(questions, options[0])
+    // questions.reduce((accumulator, value) => {
+    //   return { ...accumulator, [value]: options[0] };
+    // }, {})
   );
   const initQuestionsGroupByOptions = options.reduce(
     (accumulator, value, idx) => {
@@ -39,18 +45,17 @@ function RadioButtonForm(props) {
     console.log(`diff = ${diff}`);
     if (sign === "added") {
       setSelectedOptions((prev) =>
-        diff.reduce((accumulator, value) => {
-          return { ...accumulator, [value]: options[0] };
-        }, prev)
+        concatObject(prev, arrayToObject(diff, options[0]))
       );
 
+      // Object.keys(prev).reduce((accumulator, key, idx) => {
+      //   return {
+      //     ...accumulator,
+      //     [key]: idx === 0 ? [...prev[key], ...diff] : prev[key],
+      //   };
+      // }, {})
       setQuestionsGroupByOptions((prev) =>
-        Object.keys(prev).reduce((accumulator, key, idx) => {
-          return {
-            ...accumulator,
-            [key]: idx === 0 ? [...prev[key], ...diff] : prev[key],
-          };
-        }, {})
+        concatArraytoArrayInObject(prev, options[0], diff)
       );
     } else if (sign === "deleted") {
       const selectedOption = selectedOptions[diff];
