@@ -114,19 +114,20 @@ const RefineRadio = () => {
   const handleAddItem = async () => {
     if (filterText && !questions.includes(filterText)) {
       updateQuestions([filterText], "added");
+      console.log(`filterText = ${filterText}`);
       //　選択肢を DB にも追加する。
-      // const url = "http://127.0.0.1:8000/tasks";
-      // const data = {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     title: filterText,
-      //   }),
-      //   headers: {
-      //     "Content-type": "application/json; charset=UTF-8",
-      //   },
-      // };
-      // const res = await fetcher(url, data);
-      // console.log(res);
+      const url = "http://127.0.0.1:8000/tasks";
+      const data = {
+        method: "POST",
+        body: JSON.stringify({
+          title: filterText,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      };
+      const res = await fetcher(url, data);
+      console.log(res);
     }
   };
 
