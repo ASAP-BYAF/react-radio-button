@@ -93,6 +93,24 @@ const RefineRadio = () => {
     setModalConfig(undefined);
     if (ret === "ok") {
       updateQuestions([x], "deleted");
+      const url = "http://127.0.0.1:8000/task_by_title";
+      const data = {
+        method: "POST",
+        body: JSON.stringify({
+          title: x,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      };
+      const res = await fetcher(url, data);
+      console.log(res);
+      console.log(res.id);
+
+      const url2 = `http://127.0.0.1:8000/tasks/${res.id}`;
+      const data2 = { method: "DELETE" };
+      const res2 = await fetcher(url2, data2);
+      console.log(res2);
     }
   };
 
