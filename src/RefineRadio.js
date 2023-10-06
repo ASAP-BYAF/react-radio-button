@@ -12,6 +12,7 @@ const RefineRadio = () => {
   const [allQuestions, setAllQuestions] = useState([]);
   const [filterText, setFilterText] = useState("");
   const options = ["Option1", "Option2", "Option3"];
+  const [visible, setVisible] = useState(false);
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
@@ -76,6 +77,12 @@ const RefineRadio = () => {
     // 単に questions !== filteredquestions とするだけではだめだった。
     if (JSON.stringify(questions) !== JSON.stringify(filteredquestions)) {
       setQuestions(filteredquestions);
+    }
+    // 選択肢の追加ボタンは検索に該当する選択肢がないときにだけ表示。
+    if (filteredquestions.length === 0) {
+      setVisible(true);
+    } else {
+      setVisible(false);
     }
   };
 
@@ -173,6 +180,7 @@ const RefineRadio = () => {
         className="addQuestionButton"
         type="button"
         onClick={handleAddItem}
+        style={{ visibility: visible ? "visible" : "hidden" }}
       >
         add
       </button>
