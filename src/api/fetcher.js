@@ -9,7 +9,7 @@ export const fetcher = async (resource, data) => {
 
     console.error(error);
     // throw error;
-    return;
+    return NaN;
   } else {
     return resJson;
   }

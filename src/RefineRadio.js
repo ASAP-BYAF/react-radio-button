@@ -5,6 +5,7 @@ import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
 import { deleteItemFromArray } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
+import NumberDropdown from "./NumberDropdown";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -137,23 +138,22 @@ const RefineRadio = () => {
   };
 
   const handleAddItem = async () => {
-    if (filterText && !questions.includes(filterText)) {
-      updateQuestions([filterText], "added");
-      console.log(`filterText = ${filterText}`);
-      //　選択肢を DB にも追加する。
-      const url = "http://127.0.0.1:8000/tasks";
-      const data = {
-        method: "POST",
-        body: JSON.stringify({
-          title: filterText,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      };
-      const res = await fetcher(url, data);
-      console.log(res);
-    }
+    updateQuestions([filterText], "added");
+    console.log(`filterText = ${filterText}`);
+    //　選択肢を DB にも追加する。
+    const url = "http://127.0.0.1:8000/tasks";
+    const data = {
+      method: "POST",
+      body: JSON.stringify({
+        title: filterText,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    console.log(res);
+    setVisible(false);
   };
 
   const memoQuestions = useMemo(() => {
@@ -169,13 +169,74 @@ const RefineRadio = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
+  const [vol, setVol] = useState(1);
+  const [file, setFile] = useState(1);
+  const [fileId, setFileId] = useState(NaN);
+  const [filename, setFileName] = useState("");
+  const handleVolNumChange = (x) => {
+    setVol(x);
+  };
+  const handleFileNumChange = (x) => {
+    setFile(x);
+  };
+
+  // 巻数あるいはファイル番号が変わるたびにこの関数を実行
+  useMemo(async () => {
+    const url = "http://127.0.0.1:8000/file_title_by_vol_file";
+    console.log(vol, file);
+    const data = {
+      method: "POST",
+      body: JSON.stringify({
+        vol_num: vol,
+        file_num: file,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    if (res.message === "None") {
+      setFileName("NoneNone");
+    } else {
+      setFileName(res.file_name);
+      setFileId(res.id);
+    }
+  }, [vol, file]);
+
+  const fileRename = async () => {
+    const ret = await new Promise((resolve) => {
+      setModalConfigRename({
+        onClose: resolve,
+        title: "新しいファイル名を入力してください。",
+        message: "空白のみにはできません。",
+      });
+    });
+    setModalConfigRename(undefined);
+    const ret_trimed = ret.trim();
+    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
+      setFileName(ret);
+    }
+  };
+
   return (
     <div>
-      <input
-        type="text"
-        placeholder="絞り込む文字を入力"
-        onChange={handleInputChange}
-      />
+      <div>
+        <NumberDropdown
+          n_st={1}
+          n_ed={103}
+          label="vol"
+          handleChange={handleVolNumChange}
+        />
+        <NumberDropdown
+          n_st={1}
+          n_ed={11}
+          label="file"
+          handleChange={handleFileNumChange}
+        />
+        <input type="text" value={filename} onClick={fileRename} />
+      </div>
+
+      <input type="text" placeholder="" onChange={handleInputChange} />
       <button
         className="addQuestionButton"
         type="button"
