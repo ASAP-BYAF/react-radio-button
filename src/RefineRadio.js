@@ -13,11 +13,12 @@ const RefineRadio = () => {
   const [questionsDiff, setQuestionsDiff] = useState([]);
   const [allQuestions, setAllQuestions] = useState([]);
   const [filterText, setFilterText] = useState("");
-  // const options = ["Option1", "Option2", "Option3"];
+  const [optionInput, setOptionInput] = useState("");
   const [options, setOptions] = useState([]);
   const [optionSelectedDiff, setOptionSelectedDiff] = useState([]);
   const [visibleAdd, setVisibleAdd] = useState(false);
-  const [visibleQuestions, setVisibleQuestions] = useState(false);
+  const [fileExist, setFileExist] = useState(false);
+  const [optionExist, setOptionExist] = useState(false);
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
@@ -41,6 +42,9 @@ const RefineRadio = () => {
         console.log("RadioRefine, UseEffect");
         console.log(tmp);
         setOptions(tmp);
+        if (tmp.length > 0) {
+          setOptionExist(true);
+        }
         // setQuestions(tmp); // res のデータをセット
       } catch (error) {
         console.error(error);
@@ -96,6 +100,11 @@ const RefineRadio = () => {
     } else {
       setVisibleAdd(false);
     }
+  };
+
+  const handleOptionInputChange = (event) => {
+    const newText = event.target.value.toLowerCase();
+    setOptionInput(newText);
   };
 
   const [modalConfig, setModalConfig] = useState(undefined);
@@ -230,16 +239,20 @@ const RefineRadio = () => {
   }, [optionSelectedDiff]);
 
   const memoQuestions = useMemo(() => {
-    return (
-      <RadioButtonForm2
-        questions={questions}
-        questionsDiff={questionsDiff}
-        options={options}
-        handleDeleteClick={handleDeleteClick}
-        handleRenameClick={handleRenameClick}
-        provideOptionChange={setOptionSelectedDiff}
-      />
-    );
+    if (questions.length > 0) {
+      return (
+        <RadioButtonForm2
+          questions={questions}
+          questionsDiff={questionsDiff}
+          options={options}
+          handleDeleteClick={handleDeleteClick}
+          handleRenameClick={handleRenameClick}
+          provideOptionChange={setOptionSelectedDiff}
+        />
+      );
+    } else {
+      return <div>人物が登録されていません。</div>;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, options]);
 
@@ -270,11 +283,11 @@ const RefineRadio = () => {
     const res = await fetcher(url, data);
     if (res.message === "None") {
       setFileName("NoneNone");
-      setVisibleQuestions(false);
+      setFileExist(false);
     } else {
       setFileName(res.file_name);
       setFileId(res.id);
-      setVisibleQuestions(true);
+      setFileExist(true);
     }
   }, [vol, file]);
 
@@ -299,6 +312,7 @@ const RefineRadio = () => {
         setFileId(file_id);
         console.log(file_id);
       }
+      setFileExist(true);
     }
   };
 
@@ -336,6 +350,33 @@ const RefineRadio = () => {
     return res3.id;
   };
 
+  const handleAddAppearingDetail = async (x) => {
+    //　task (人物) を DB にも追加する。
+    const task_id = await addAppearingDetailToDb(x);
+    addAppearingToDb(task_id, 1);
+    setVisibleAdd(false);
+  };
+
+  const handleAddOptions = async () => {
+    addAppearingDetailToDb(optionInput);
+    setOptionExist(true);
+  };
+
+  const addAppearingDetailToDb = async (appearing_detail) => {
+    const url3 = "http://127.0.0.1:8000/appearing_detail_create";
+    const data3 = {
+      method: "post",
+      body: JSON.stringify({
+        appearing_detail: appearing_detail,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res3 = await fetcher(url3, data3);
+    return res3.id;
+  };
+
   return (
     <div>
       <div>
@@ -354,8 +395,21 @@ const RefineRadio = () => {
         <input type="text" value={filename} onClick={fileRename} />
       </div>
 
-      <div style={{ display: visibleQuestions ? "block" : "none" }}>
-        <input type="text" placeholder="" onChange={handleInputChange} />
+      <input
+        type="text"
+        placeholder="add options"
+        onChange={handleOptionInputChange}
+      />
+      <button type="button" onClick={handleAddOptions}>
+        add
+      </button>
+
+      <div style={{ display: fileExist && optionExist ? "block" : "none" }}>
+        <input
+          type="text"
+          placeholder="人物を絞り込む"
+          onChange={handleInputChange}
+        />
         <button
           className="addQuestionButton"
           type="button"
