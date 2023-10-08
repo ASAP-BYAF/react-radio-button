@@ -12,7 +12,6 @@ import {
 } from "./util/add";
 
 function RadioButtonForm(props) {
-  console.log("childBegin");
   const {
     questions,
     questionsDiff,
@@ -20,7 +19,6 @@ function RadioButtonForm(props) {
     handleDeleteClick = () => {},
     handleRenameClick = () => {},
   } = props;
-  console.log(`questions = ${questions}`);
 
   const [selectedOptions, setSelectedOptions] = useState(
     arrayToObject(questions, options[0])
@@ -41,8 +39,6 @@ function RadioButtonForm(props) {
   useEffect(() => {
     const sign = questionsDiff[0];
     const diff = questionsDiff[1];
-    console.log(`sign = ${sign}`);
-    console.log(`diff = ${diff}`);
     if (sign === "added") {
       setSelectedOptions((prev) =>
         concatObject(prev, arrayToObject(diff, options[0]))
@@ -74,10 +70,6 @@ function RadioButtonForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionsDiff]);
-  console.log("selectedOptions");
-  console.log(selectedOptions);
-  console.log("questionsGroupByOptions");
-  console.log(questionsGroupByOptions);
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
@@ -125,7 +117,6 @@ function RadioButtonForm(props) {
                 name={elem2}
                 onClick={(e) => {
                   handleDeleteClick(e.target.name);
-                  console.log("clicked");
                 }}
               >
                 delete
@@ -136,7 +127,6 @@ function RadioButtonForm(props) {
                 name={elem2}
                 onClick={(e) => {
                   handleRenameClick(e.target.name);
-                  console.log("clicked");
                 }}
               >
                 rename
@@ -150,14 +140,8 @@ function RadioButtonForm(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, selectedOptions]);
 
-  console.log("childEnd");
-
   return (
-    <form
-      onSubmit={() => {
-        console.log("submitted");
-      }}
-    >
+    <form onSubmit={() => {}}>
       {memoQuestions}
       <button type="submit">送信</button>
     </form>
