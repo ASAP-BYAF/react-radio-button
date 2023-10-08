@@ -294,8 +294,29 @@ const RefineRadio = () => {
         const file_id = await addFileToDb(vol, file, ret);
         setFileId(file_id);
         console.log(file_id);
+      } else {
+        const file_id = await updateFileToDb(fileId, vol, file, ret);
+        setFileId(file_id);
+        console.log(file_id);
       }
     }
+  };
+
+  const updateFileToDb = async (file_id, vol_num, file_num, file_name) => {
+    const url3 = `http://127.0.0.1:8000/file_update/${file_id}`;
+    const data3 = {
+      method: "put",
+      body: JSON.stringify({
+        vol_num: vol_num,
+        file_num: file_num,
+        file_name: file_name,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res3 = await fetcher(url3, data3);
+    return res3.id;
   };
 
   const addFileToDb = async (vol_num, file_num, file_name) => {
