@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { MyDialog } from "./myDialog.js";
 import { MyDialogRename } from "./myDialogRename.js";
-import RadioButtonForm from "./RadioButtonForm";
+import RadioButtonForm2 from "./RadioButtonForm2";
+// import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
 import { deleteItemFromArray } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
@@ -12,8 +13,11 @@ const RefineRadio = () => {
   const [questionsDiff, setQuestionsDiff] = useState([]);
   const [allQuestions, setAllQuestions] = useState([]);
   const [filterText, setFilterText] = useState("");
-  const options = ["Option1", "Option2", "Option3"];
-  const [visible, setVisible] = useState(false);
+  // const options = ["Option1", "Option2", "Option3"];
+  const [options, setOptions] = useState([]);
+  const [optionSelectedDiff, setOptionSelectedDiff] = useState([]);
+  const [visibleAdd, setVisibleAdd] = useState(false);
+  const [visibleQuestions, setVisibleQuestions] = useState(false);
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
@@ -26,7 +30,18 @@ const RefineRadio = () => {
         const tmp = res.map((value2) => value2["title"]);
         // setQuestions(tmp); // res のデータをセット
         const diff = updateQuestions(tmp, "added");
-        console.log(diff);
+      } catch (error) {
+        console.error(error);
+      }
+      try {
+        const url = "http://127.0.0.1:8000/appearings";
+        const data = { method: "GET" };
+        const res = await fetcher(url, data);
+        const tmp = res.map((value2) => String(value2["id"]));
+        console.log("RadioRefine, UseEffect");
+        console.log(tmp);
+        setOptions(tmp);
+        // setQuestions(tmp); // res のデータをセット
       } catch (error) {
         console.error(error);
       }
@@ -63,10 +78,6 @@ const RefineRadio = () => {
       return "renamed";
     }
   };
-  console.log("questions");
-  console.log(questions);
-  console.log("allQuestions");
-  console.log(allQuestions);
 
   const handleInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
@@ -81,9 +92,9 @@ const RefineRadio = () => {
     }
     // 選択肢の追加ボタンは検索に該当する選択肢がないときにだけ表示。
     if (filteredquestions.length === 0) {
-      setVisible(true);
+      setVisibleAdd(true);
     } else {
-      setVisible(false);
+      setVisibleAdd(false);
     }
   };
 
@@ -112,13 +123,10 @@ const RefineRadio = () => {
         },
       };
       const res = await fetcher(url, data);
-      console.log(res);
-      console.log(res.id);
 
       const url2 = `http://127.0.0.1:8000/tasks/${res.id}`;
       const data2 = { method: "DELETE" };
       const res2 = await fetcher(url2, data2);
-      console.log(res2);
     }
   };
 
@@ -139,40 +147,106 @@ const RefineRadio = () => {
 
   const handleAddItem = async () => {
     updateQuestions([filterText], "added");
-    console.log(`filterText = ${filterText}`);
-    //　選択肢を DB にも追加する。
+    //　task (人物) を DB にも追加する。
+    const task_id = await addTaskToDb(filterText);
+    addAppearingToDb(task_id, 1);
+    setVisibleAdd(false);
+  };
+
+  const addTaskToDb = async (title) => {
     const url = "http://127.0.0.1:8000/tasks";
     const data = {
       method: "POST",
       body: JSON.stringify({
-        title: filterText,
+        title: title,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     };
     const res = await fetcher(url, data);
-    console.log(res);
-    setVisible(false);
+    console.log(`file_id = ${res.id}`);
+    return res.id;
   };
+
+  const getTaskIdFromDb = async (title) => {
+    const url = "http://127.0.0.1:8000/task_by_title";
+    const data = {
+      method: "POST",
+      body: JSON.stringify({
+        title: title,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    console.log(`file_id = ${res.id}`);
+    return res.id;
+  };
+
+  const addAppearingToDb = async (task_id, appearing_detail_id) => {
+    const url3 = "http://127.0.0.1:8000/appearing_create";
+    const data3 = {
+      method: "post",
+      body: JSON.stringify({
+        file_id: fileId,
+        task_id: task_id,
+        appearing_detail_id: appearing_detail_id,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    console.log(data3);
+    const res3 = await fetcher(url3, data3);
+    console.log(`appearing_id = ${res3.appearing_id}`);
+  };
+
+  const updateAppearingToDb = async (task_id, appearing_detail_id) => {
+    const url3 = "http://127.0.0.1:8000/appearing_update";
+    const data3 = {
+      method: "put",
+      body: JSON.stringify({
+        file_id: fileId,
+        task_id: task_id,
+        appearing_detail_id: appearing_detail_id,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    console.log("data3");
+    console.log(data3);
+    const res3 = await fetcher(url3, data3);
+    console.log(`appearing_id = ${res3.appearing_id}`);
+  };
+
+  useMemo(async () => {
+    if (Object.keys(optionSelectedDiff).length !== 0) {
+      const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
+      await updateAppearingToDb(task_id, optionSelectedDiff["value"]);
+    }
+  }, [optionSelectedDiff]);
 
   const memoQuestions = useMemo(() => {
     return (
-      <RadioButtonForm
+      <RadioButtonForm2
         questions={questions}
         questionsDiff={questionsDiff}
         options={options}
         handleDeleteClick={handleDeleteClick}
         handleRenameClick={handleRenameClick}
+        provideOptionChange={setOptionSelectedDiff}
       />
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions]);
+  }, [questions, options]);
 
   const [vol, setVol] = useState(1);
   const [file, setFile] = useState(1);
-  const [fileId, setFileId] = useState(NaN);
   const [filename, setFileName] = useState("");
+  const [fileId, setFileId] = useState("");
   const handleVolNumChange = (x) => {
     setVol(x);
   };
@@ -182,8 +256,7 @@ const RefineRadio = () => {
 
   // 巻数あるいはファイル番号が変わるたびにこの関数を実行
   useMemo(async () => {
-    const url = "http://127.0.0.1:8000/file_title_by_vol_file";
-    console.log(vol, file);
+    const url = "http://127.0.0.1:8000/file_name_by_vol_file";
     const data = {
       method: "POST",
       body: JSON.stringify({
@@ -197,9 +270,11 @@ const RefineRadio = () => {
     const res = await fetcher(url, data);
     if (res.message === "None") {
       setFileName("NoneNone");
+      setVisibleQuestions(false);
     } else {
       setFileName(res.file_name);
       setFileId(res.id);
+      setVisibleQuestions(true);
     }
   }, [vol, file]);
 
@@ -236,19 +311,20 @@ const RefineRadio = () => {
         <input type="text" value={filename} onClick={fileRename} />
       </div>
 
-      <input type="text" placeholder="" onChange={handleInputChange} />
-      <button
-        className="addQuestionButton"
-        type="button"
-        onClick={handleAddItem}
-        style={{ visibility: visible ? "visible" : "hidden" }}
-      >
-        add
-      </button>
-
+      <div style={{ display: visibleQuestions ? "block" : "none" }}>
+        <input type="text" placeholder="" onChange={handleInputChange} />
+        <button
+          className="addQuestionButton"
+          type="button"
+          onClick={handleAddItem}
+          style={{ display: visibleAdd ? "inline-block" : "none" }}
+        >
+          add
+        </button>
+        {memoQuestions}
+      </div>
       {modalConfig && <MyDialog {...modalConfig} />}
       {modalConfigRename && <MyDialogRename {...modalConfigRename} />}
-      {memoQuestions}
     </div>
   );
 };
