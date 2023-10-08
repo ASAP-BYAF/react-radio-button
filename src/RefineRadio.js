@@ -38,7 +38,7 @@ const RefineRadio = () => {
         const url = "http://127.0.0.1:8000/appearings";
         const data = { method: "GET" };
         const res = await fetcher(url, data);
-        const tmp = res.map((value2) => String(value2["id"]));
+        const tmp = res.map((value2) => String(value2["appearing_detail"]));
         console.log("RadioRefine, UseEffect");
         console.log(tmp);
         setOptions(tmp);
@@ -244,14 +244,17 @@ const RefineRadio = () => {
         <RadioButtonForm2
           questions={questions}
           questionsDiff={questionsDiff}
-          options={options}
+          // options={options}
+          options={options.map((item, idx) => {
+            return idx;
+          })}
           handleDeleteClick={handleDeleteClick}
           handleRenameClick={handleRenameClick}
           provideOptionChange={setOptionSelectedDiff}
         />
       );
     } else {
-      return <div>人物が登録されていません。</div>;
+      return <div>該当する人物が存在しません</div>;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, options]);
@@ -350,16 +353,10 @@ const RefineRadio = () => {
     return res3.id;
   };
 
-  const handleAddAppearingDetail = async (x) => {
-    //　task (人物) を DB にも追加する。
-    const task_id = await addAppearingDetailToDb(x);
-    addAppearingToDb(task_id, 1);
-    setVisibleAdd(false);
-  };
-
   const handleAddOptions = async () => {
     addAppearingDetailToDb(optionInput);
     setOptionExist(true);
+    setOptions((prev) => [...prev, optionInput]);
   };
 
   const addAppearingDetailToDb = async (appearing_detail) => {
@@ -376,6 +373,18 @@ const RefineRadio = () => {
     const res3 = await fetcher(url3, data3);
     return res3.id;
   };
+
+  const optionList = useMemo(() => {
+    const tmp = [];
+    options.forEach((item, idx) => {
+      tmp.push(
+        <span>
+          {idx}: {item} /
+        </span>
+      );
+    });
+    return tmp;
+  }, [options]);
 
   return (
     <div>
@@ -403,6 +412,7 @@ const RefineRadio = () => {
       <button type="button" onClick={handleAddOptions}>
         add
       </button>
+      <div>{optionList}</div>
 
       <div style={{ display: fileExist && optionExist ? "block" : "none" }}>
         <input
