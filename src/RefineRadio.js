@@ -290,7 +290,29 @@ const RefineRadio = () => {
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
       setFileName(ret);
+      if (filename === "NoneNone") {
+        const file_id = await addFileToDb(vol, file, ret);
+        setFileId(file_id);
+        console.log(file_id);
+      }
     }
+  };
+
+  const addFileToDb = async (vol_num, file_num, file_name) => {
+    const url3 = "http://127.0.0.1:8000/file_create";
+    const data3 = {
+      method: "post",
+      body: JSON.stringify({
+        vol_num: vol_num,
+        file_num: file_num,
+        file_name: file_name,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res3 = await fetcher(url3, data3);
+    return res3.id;
   };
 
   return (
