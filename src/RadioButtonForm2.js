@@ -22,9 +22,7 @@ function RadioButtonForm(props) {
     const sign = questionsDiff[0];
     const diff = questionsDiff[1];
     if (sign === "added") {
-      setSelectedOptions((prev) =>
-        concatObject(prev, arrayToObject(diff, "1"))
-      );
+      setSelectedOptions((prev) => concatObject(prev, arrayToObject(diff, 0)));
     } else if (sign === "deleted") {
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
