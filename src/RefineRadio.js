@@ -42,9 +42,6 @@ const RefineRadio = () => {
         console.log("RadioRefine, UseEffect");
         console.log(tmp);
         setOptions(tmp);
-        if (tmp.length > 0) {
-          setOptionExist(true);
-        }
         // setQuestions(tmp); // res のデータをセット
       } catch (error) {
         console.error(error);
@@ -55,6 +52,13 @@ const RefineRadio = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useMemo(() => {
+    if (options.length > 0) {
+      setOptionExist(true);
+    } else {
+      setOptionExist(false);
+    }
+  }, [options]);
   // 質問の追加、削除、変更時に現在表示している質問とすべての質問を更新。
   // また、前回との差分を計算。
   const updateQuestions = (x, sign) => {
@@ -355,7 +359,6 @@ const RefineRadio = () => {
 
   const handleAddOptions = async () => {
     addAppearingDetailToDb(optionInput);
-    setOptionExist(true);
     setOptions((prev) => [...prev, optionInput]);
   };
 
@@ -417,9 +420,9 @@ const RefineRadio = () => {
     setModalConfig(undefined);
     if (ret === "ok") {
       console.log("delete a option");
-      const url3 = "http://127.0.0.1:8000/appearing_detail_by_name";
+      const url3 = "http://127.0.0.1:8000/appearing_delete";
       const data3 = {
-        method: "post",
+        method: "delete",
         body: JSON.stringify({
           appearing_detail: optionName,
         }),
@@ -429,7 +432,7 @@ const RefineRadio = () => {
       };
       const res3 = await fetcher(url3, data3);
       console.log(res3);
-      return res3.id;
+      setOptions((prev) => prev.filter((word) => word !== optionName));
     }
   };
 
