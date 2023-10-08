@@ -378,13 +378,75 @@ const RefineRadio = () => {
     const tmp = [];
     options.forEach((item, idx) => {
       tmp.push(
-        <span>
-          {idx}: {item} /
-        </span>
+        <div>
+          <span>
+            {idx}: {item} /
+          </span>
+          <button
+            type="button"
+            name={item}
+            onClick={(e) => {
+              handleDeleteOption(e.target.name);
+            }}
+          >
+            delete
+          </button>
+          <button
+            type="button"
+            name={item}
+            onClick={(e) => {
+              handleRenameOption(e.target.name);
+            }}
+          >
+            rename
+          </button>
+        </div>
       );
     });
     return tmp;
   }, [options]);
+
+  const handleDeleteOption = async (optionName) => {
+    const ret = await new Promise((resolve) => {
+      setModalConfig({
+        onClose: resolve,
+        title: "削除します。よろしいですか?",
+        message: "削除すると二度と元に戻せません。",
+      });
+    });
+    setModalConfig(undefined);
+    if (ret === "ok") {
+      console.log("delete a option");
+      const url3 = "http://127.0.0.1:8000/appearing_detail_by_name";
+      const data3 = {
+        method: "post",
+        body: JSON.stringify({
+          appearing_detail: optionName,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      };
+      const res3 = await fetcher(url3, data3);
+      console.log(res3);
+      return res3.id;
+    }
+  };
+
+  const handleRenameOption = async (x) => {
+    const ret = await new Promise((resolve) => {
+      setModalConfigRename({
+        onClose: resolve,
+        title: "新しい選択肢を入力してください。",
+        message: "空白のみにはできません。",
+      });
+    });
+    setModalConfigRename(undefined);
+    const ret_trimed = ret.trim();
+    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
+      console.log("rename a option");
+    }
+  };
 
   return (
     <div>
