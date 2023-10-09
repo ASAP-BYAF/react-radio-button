@@ -15,14 +15,14 @@ function RadioButtonForm(props) {
   } = props;
 
   const [selectedOptions, setSelectedOptions] = useState({});
-  console.log("RadioButtonForm2");
-  console.log(selectedOptions);
 
   useEffect(() => {
     const sign = questionsDiff[0];
     const diff = questionsDiff[1];
     if (sign === "added") {
-      setSelectedOptions((prev) => concatObject(prev, arrayToObject(diff, 0)));
+      setSelectedOptions((prev) =>
+        concatObject(prev, arrayToObject(diff, NaN))
+      );
     } else if (sign === "deleted") {
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
@@ -36,8 +36,6 @@ function RadioButtonForm(props) {
 
   const handleOptionChange = (e) => {
     const { name, value } = e.target;
-    console.log(`name = ${name}`);
-    console.log(`value = ${value}`);
     setSelectedOptions({
       ...selectedOptions,
       [name]: Number(value),
