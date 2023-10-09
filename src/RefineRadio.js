@@ -256,19 +256,20 @@ const RefineRadio = () => {
   useMemo(async () => {
     if (Object.keys(optionSelectedDiff).length !== 0) {
       const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
-      const appearing_detail_option_name = options[optionSelectedDiff["value"]];
-      const appearing_detail_id = await getAppearingDetailByNameFromDb(
-        appearing_detail_option_name
+      const selectedOptionNum =
+        Object.values(options)[optionSelectedDiff["value"]];
+      const new_appearing_detail_id = Object.keys(options).find(
+        (key) => options[key] === selectedOptionNum
       );
       const res = await updateAppearingToDb(
         fileId,
         task_id,
-        appearing_detail_id
+        new_appearing_detail_id
       );
       // 未選択の場合、更新する対象が見つからないので、新たに作成する。
       if (res === 404) {
         console.error("error");
-        await addAppearingToDb(fileId, task_id, appearing_detail_id);
+        await addAppearingToDb(fileId, task_id, new_appearing_detail_id);
       }
     }
   }, [optionSelectedDiff]);
