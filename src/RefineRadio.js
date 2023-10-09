@@ -4,7 +4,8 @@ import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm2 from "./RadioButtonForm2";
 // import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
-import { deleteItemFromArray } from "./util/delete.js";
+import { concatObject } from "./util/add.js";
+import { deleteItemFromArray, deleteItemFromObject } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
 import NumberDropdown from "./NumberDropdown";
 
@@ -38,7 +39,9 @@ const RefineRadio = () => {
         const url = "http://127.0.0.1:8000/appearings";
         const data = { method: "GET" };
         const res = await fetcher(url, data);
-        const tmp = res.map((value2) => String(value2["appearing_detail"]));
+        const tmp = res.reduce((accumulator, x) => {
+          return { ...accumulator, [x["id"]]: x["appearing_detail"] };
+        }, {});
         console.log("RadioRefine, UseEffect");
         console.log(tmp);
         setOptions(tmp);
@@ -53,7 +56,7 @@ const RefineRadio = () => {
   }, []);
 
   useMemo(() => {
-    if (options.length > 0) {
+    if (Object.keys(options).length > 0) {
       setOptionExist(true);
     } else {
       setOptionExist(false);
@@ -276,8 +279,7 @@ const RefineRadio = () => {
         <RadioButtonForm2
           questions={questions}
           questionsDiff={questionsDiff}
-          // options={options}
-          options={options.map((item, idx) => {
+          options={Object.keys(options).map((item, idx) => {
             return idx;
           })}
           handleDeleteClick={handleDeleteClick}
@@ -386,8 +388,10 @@ const RefineRadio = () => {
   };
 
   const handleAddOptions = async () => {
-    addAppearingDetailToDb(optionInput);
-    setOptions((prev) => [...prev, optionInput]);
+    const appearing_detail_id = await addAppearingDetailToDb(optionInput);
+    setOptions((prev) =>
+      concatObject(prev, { [appearing_detail_id]: optionInput })
+    );
   };
 
   const addAppearingDetailToDb = async (appearing_detail) => {
@@ -458,9 +462,12 @@ const RefineRadio = () => {
           "Content-type": "application/json; charset=UTF-8",
         },
       };
-      const res3 = await fetcher(url3, data3);
-      console.log(res3);
-      setOptions((prev) => prev.filter((word) => word !== optionName));
+      await fetcher(url3, data3);
+      const old_id = Object.keys(options).find(
+        (key) => options[key] === optionName
+      );
+      // console.log(old_id);
+      setOptions((prev) => deleteItemFromObject(prev, old_id));
     }
   };
 
@@ -474,13 +481,17 @@ const RefineRadio = () => {
     });
     setModalConfigRename(undefined);
     const ret_trimed = ret.trim();
-    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
+    if (ret !== "cancel" && ret_trimed) {
       console.log("rename a option");
-      setOptions((prev) => renameItemInArray(prev, x, ret));
       const appearing_detail_id = await getAppearingDetailIdFromDbByName(x);
       await updateAppearingDetailOnDb(appearing_detail_id, ret);
+      console.log(`appearing_detail_id = ${appearing_detail_id}`);
+      setOptions((prev) => ({ ...prev, [appearing_detail_id]: ret }));
     }
   };
+
+  console.log("====== options ==========");
+  console.log(options);
 
   const getAppearingDetailIdFromDbByName = async (appearing_detail_name) => {
     const url = "http://127.0.0.1:8000/appearing_detail_by_name";
