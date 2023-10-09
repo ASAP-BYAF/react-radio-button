@@ -40,7 +40,7 @@ function RadioButtonForm(props) {
     console.log(`value = ${value}`);
     setSelectedOptions({
       ...selectedOptions,
-      [name]: value,
+      [name]: Number(value),
     });
     provideOptionChange({ name: name, value: value });
   };

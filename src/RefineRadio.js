@@ -181,6 +181,22 @@ const RefineRadio = () => {
     return res.id;
   };
 
+  const getAppearingDetailByNameFromDb = async (appearing_detail_name) => {
+    const url = "http://127.0.0.1:8000/appearing_detail_by_name";
+    const data = {
+      method: "POST",
+      body: JSON.stringify({
+        appearing_detail: appearing_detail_name,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    console.log(`appearing_detail_id = ${res.id}`);
+    return res.id;
+  };
+
   const addTaskToDb = async (title) => {
     const url = "http://127.0.0.1:8000/tasks";
     const data = {
@@ -231,12 +247,12 @@ const RefineRadio = () => {
     console.log(`appearing_id = ${res3.appearing_id}`);
   };
 
-  const updateAppearingToDb = async (task_id, appearing_detail_id) => {
+  const updateAppearingToDb = async (file_id, task_id, appearing_detail_id) => {
     const url3 = "http://127.0.0.1:8000/appearing_update";
     const data3 = {
       method: "put",
       body: JSON.stringify({
-        file_id: fileId,
+        file_id: file_id,
         task_id: task_id,
         appearing_detail_id: appearing_detail_id,
       }),
@@ -253,7 +269,11 @@ const RefineRadio = () => {
   useMemo(async () => {
     if (Object.keys(optionSelectedDiff).length !== 0) {
       const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
-      await updateAppearingToDb(task_id, optionSelectedDiff["value"]);
+      const appearing_detail_option_name = options[optionSelectedDiff["value"]];
+      const appearing_detail_id = await getAppearingDetailByNameFromDb(
+        appearing_detail_option_name
+      );
+      await updateAppearingToDb(fileId, task_id, appearing_detail_id);
     }
   }, [optionSelectedDiff]);
 
