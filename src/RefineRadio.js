@@ -299,6 +299,7 @@ const RefineRadio = () => {
 
   // 巻数あるいはファイル番号が変わるたびにこの関数を実行
   useMemo(async () => {
+    console.log("fileIdSet");
     const url = "http://127.0.0.1:8000/file_name_by_vol_file";
     const data = {
       method: "POST",
@@ -313,6 +314,7 @@ const RefineRadio = () => {
     const res = await fetcher(url, data);
     if (res.message === "None") {
       setFileName("NoneNone");
+      setFileId(-1);
       setFileExist(false);
     } else {
       setFileName(res.file_name);
@@ -400,11 +402,11 @@ const RefineRadio = () => {
     return res3.id;
   };
 
-  const optionList = useMemo(() => {
+  const tmp123 = () => {
     const tmp = [];
-    options.forEach((item, idx) => {
+    Object.values(options).forEach((item, idx) => {
       tmp.push(
-        <div>
+        <div key={item}>
           <span>
             {idx}: {item} /
           </span>
@@ -429,6 +431,11 @@ const RefineRadio = () => {
         </div>
       );
     });
+    return tmp;
+  };
+
+  const optionList = useMemo(() => {
+    const tmp = tmp123();
     return tmp;
   }, [options]);
 
@@ -506,11 +513,54 @@ const RefineRadio = () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     };
-    console.log("data3");
-    console.log(data3);
     const res3 = await fetcher(url3, data3);
-    console.log(`appearing_id = ${res3.appearing_id}`);
   };
+
+  const getAppearingWithFileIdFromDb = async (file_id) => {
+    const url = `http://127.0.0.1:8000/appearing_with_file_id/${file_id}`;
+    const data = {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    return res;
+  };
+
+  const aaa = async (xxx, file_id) => {
+    try {
+      console.log("xxx");
+      console.log(xxx);
+      console.log(file_id);
+      // const appearling_list = await getAppearingWithFileIdFromDb(file_id);
+      // console.log(appearling_list);
+      // console.log(appearling_list[0]);
+      // console.log(appearling_list[0]["appearing_detail_id"]);
+      // const ccc = appearling_list[0]["appearing_detail_id"];
+      // console.log(xxx[ccc]);
+      // console.log(xxx);
+      // const bbb = appearling_list.reduce((accumulator, item) => {
+      //   const tmp = item["appearing_detail_id"];
+      //   return { ...accumulator, 1: xxx[tmp] };
+      // }, {});
+      // console.log(bbb);
+      // console.log(xxx[appearling_list[0]["appearing_detail_id"]]);
+    } catch {
+      console.error(
+        "Cannot access getAppearingWithFileIdFromDb before initialization"
+      );
+    }
+  };
+
+  useMemo(() => console.log(`file_id = ${fileId}`), [fileId]);
+  useMemo(() => console.log(`vol = ${vol}`), [vol]);
+
+  useMemo(async () => {
+    if (fileExist && optionExist) {
+      await aaa(options, fileId);
+    }
+  }, [fileId, fileExist, optionExist]);
 
   return (
     <div>
