@@ -161,24 +161,8 @@ const RefineRadio = () => {
   const handleAddItem = async () => {
     updateQuestions([filterText], "added");
     //　task (人物) を DB にも追加する。
-    const task_id = await addTaskToDb(filterText);
-    const appearing_detail_id_min = await getAppearingDetailIdMinFromDb();
-    console.log(`appearing_detail_id_min = ${appearing_detail_id_min}`);
-    addAppearingToDb(fileId, task_id, appearing_detail_id_min);
+    await addTaskToDb(filterText);
     setVisibleAdd(false);
-  };
-
-  const getAppearingDetailIdMinFromDb = async () => {
-    const url = "http://127.0.0.1:8000/appearing_id_min";
-    const data = {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
-    console.log(`appearing_detail_id = ${res.id}`);
-    return res.id;
   };
 
   const getAppearingDetailByNameFromDb = async (appearing_detail_name) => {
