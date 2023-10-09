@@ -483,7 +483,46 @@ const RefineRadio = () => {
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
       console.log("rename a option");
+      setOptions((prev) => renameItemInArray(prev, x, ret));
+      const appearing_detail_id = await getAppearingDetailIdFromDbByName(x);
+      await updateAppearingDetailOnDb(appearing_detail_id, ret);
     }
+  };
+
+  const getAppearingDetailIdFromDbByName = async (appearing_detail_name) => {
+    const url = "http://127.0.0.1:8000/appearing_detail_by_name";
+    const data = {
+      method: "POST",
+      body: JSON.stringify({
+        appearing_detail: appearing_detail_name,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    const res = await fetcher(url, data);
+    console.log(`appearing_detail_id = ${res.id}`);
+    return res.id;
+  };
+
+  const updateAppearingDetailOnDb = async (
+    appearing_detail_id,
+    new_appearing_detail_name
+  ) => {
+    const url3 = `http://127.0.0.1:8000/update_appearing_detail/${appearing_detail_id}`;
+    const data3 = {
+      method: "put",
+      body: JSON.stringify({
+        appearing_detail: new_appearing_detail_name,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    };
+    console.log("data3");
+    console.log(data3);
+    const res3 = await fetcher(url3, data3);
+    console.log(`appearing_id = ${res3.appearing_id}`);
   };
 
   return (
