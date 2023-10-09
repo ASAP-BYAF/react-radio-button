@@ -8,8 +8,9 @@ export const fetcher = async (resource, data) => {
     );
 
     console.error(error);
+    console.error(res.status);
     // throw error;
-    return NaN;
+    return res.status;
   } else {
     return resJson;
   }
