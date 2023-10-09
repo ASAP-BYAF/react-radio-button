@@ -42,9 +42,8 @@ const RefineRadio = () => {
         const tmp = res.reduce((accumulator, x) => {
           return { ...accumulator, [x["id"]]: x["appearing_detail"] };
         }, {});
-        console.log("RadioRefine, UseEffect");
-        console.log(tmp);
         setOptions(tmp);
+        console.log("setOptions");
         // setQuestions(tmp); // res のデータをセット
       } catch (error) {
         console.error(error);
@@ -180,7 +179,6 @@ const RefineRadio = () => {
       },
     };
     const res = await fetcher(url, data);
-    console.log(`appearing_detail_id = ${res.id}`);
     return res.id;
   };
 
@@ -196,7 +194,6 @@ const RefineRadio = () => {
       },
     };
     const res = await fetcher(url, data);
-    console.log(`file_id = ${res.id}`);
     return res.id;
   };
 
@@ -212,7 +209,6 @@ const RefineRadio = () => {
       },
     };
     const res = await fetcher(url, data);
-    console.log(`file_id = ${res.id}`);
     return res.id;
   };
 
@@ -229,9 +225,7 @@ const RefineRadio = () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     };
-    console.log(data3);
     const res3 = await fetcher(url3, data3);
-    console.log(`appearing_id = ${res3.appearing_id}`);
   };
 
   const updateAppearingToDb = async (file_id, task_id, appearing_detail_id) => {
@@ -247,8 +241,6 @@ const RefineRadio = () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     };
-    console.log("data3");
-    console.log(data3);
     const res = await fetcher(url3, data3);
     return res;
   };
@@ -297,7 +289,7 @@ const RefineRadio = () => {
   const [vol, setVol] = useState(1);
   const [file, setFile] = useState(1);
   const [filename, setFileName] = useState("");
-  const [fileId, setFileId] = useState("");
+  const [fileId, setFileId] = useState();
   const handleVolNumChange = (x) => {
     setVol(x);
   };
@@ -344,11 +336,9 @@ const RefineRadio = () => {
       if (filename === "NoneNone") {
         const file_id = await addFileToDb(vol, file, ret);
         setFileId(file_id);
-        console.log(file_id);
       } else {
         const file_id = await updateFileToDb(fileId, vol, file, ret);
         setFileId(file_id);
-        console.log(file_id);
       }
       setFileExist(true);
     }
@@ -452,7 +442,6 @@ const RefineRadio = () => {
     });
     setModalConfig(undefined);
     if (ret === "ok") {
-      console.log("delete a option");
       const url3 = "http://127.0.0.1:8000/appearing_delete";
       const data3 = {
         method: "delete",
@@ -467,7 +456,6 @@ const RefineRadio = () => {
       const old_id = Object.keys(options).find(
         (key) => options[key] === optionName
       );
-      // console.log(old_id);
       setOptions((prev) => deleteItemFromObject(prev, old_id));
     }
   };
@@ -483,16 +471,11 @@ const RefineRadio = () => {
     setModalConfigRename(undefined);
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed) {
-      console.log("rename a option");
       const appearing_detail_id = await getAppearingDetailIdFromDbByName(x);
       await updateAppearingDetailOnDb(appearing_detail_id, ret);
-      console.log(`appearing_detail_id = ${appearing_detail_id}`);
       setOptions((prev) => ({ ...prev, [appearing_detail_id]: ret }));
     }
   };
-
-  console.log("====== options ==========");
-  console.log(options);
 
   const getAppearingDetailIdFromDbByName = async (appearing_detail_name) => {
     const url = "http://127.0.0.1:8000/appearing_detail_by_name";
@@ -506,7 +489,6 @@ const RefineRadio = () => {
       },
     };
     const res = await fetcher(url, data);
-    console.log(`appearing_detail_id = ${res.id}`);
     return res.id;
   };
 
