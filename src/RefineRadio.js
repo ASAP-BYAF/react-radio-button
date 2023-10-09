@@ -246,8 +246,8 @@ const RefineRadio = () => {
     };
     console.log("data3");
     console.log(data3);
-    const res3 = await fetcher(url3, data3);
-    console.log(`appearing_id = ${res3.appearing_id}`);
+    const res = await fetcher(url3, data3);
+    return res;
   };
 
   useMemo(async () => {
@@ -257,7 +257,16 @@ const RefineRadio = () => {
       const appearing_detail_id = await getAppearingDetailByNameFromDb(
         appearing_detail_option_name
       );
-      await updateAppearingToDb(fileId, task_id, appearing_detail_id);
+      const res = await updateAppearingToDb(
+        fileId,
+        task_id,
+        appearing_detail_id
+      );
+      // 未選択の場合、更新する対象が見つからないので、新たに作成する。
+      if (res === 404) {
+        console.error("error");
+        await addAppearingToDb(fileId, task_id, appearing_detail_id);
+      }
     }
   }, [optionSelectedDiff]);
 
