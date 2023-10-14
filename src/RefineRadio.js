@@ -468,7 +468,9 @@ const RefineRadio = () => {
       const old_id = Object.keys(options).find(
         (key) => options[key] === optionName
       );
-      setOptions((prev) => deleteItemFromObject(prev, old_id));
+      const tmp = deleteItemFromObject(options, old_id);
+      setOptions(tmp);
+      await aaa(tmp, fileId);
     }
   };
 
@@ -539,26 +541,18 @@ const RefineRadio = () => {
       console.log(xxx);
       console.log(file_id);
       const rrr = Object.keys(xxx).map((item) => item);
-      // console.log("rrr");
-      // console.log(rrr);
       const sss = await questions.reduce(async (acc, item) => {
         acc = await acc;
         const tmp = await getTaskIdFromDb(item);
         acc = { ...acc, [tmp]: item };
         return acc;
       }, {});
-      // console.log("sss");
-      // console.log(sss);
       const appearling_list = await getAppearingWithFileIdFromDb(file_id);
-      // console.log("appearling_list");
-      // console.log(appearling_list);
       const bbb = appearling_list.reduce((acc, item) => {
         const task_id = item["task_id"];
         const task = sss[task_id];
         const appearing_detail_id = item["appearing_detail_id"];
-        // console.log(`appearing_detail_id = ${appearing_detail_id}`);
         const optionNum = rrr.indexOf(String(appearing_detail_id));
-        // console.log(optionNum);
         return { ...acc, [task]: optionNum };
       }, {});
       console.log("bbb");
