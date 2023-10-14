@@ -8,6 +8,7 @@ import { concatObject } from "./util/add.js";
 import { deleteItemFromArray, deleteItemFromObject } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
 import NumberDropdown from "./NumberDropdown";
+import { arrayToObject } from "./util/add";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -20,6 +21,9 @@ const RefineRadio = () => {
   const [visibleAdd, setVisibleAdd] = useState(false);
   const [fileExist, setFileExist] = useState(false);
   const [optionExist, setOptionExist] = useState(false);
+  const [selectedOptionBefore, setSelectedOptionBefore] = useState(
+    arrayToObject(questions, options[0])
+  );
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
@@ -278,13 +282,14 @@ const RefineRadio = () => {
           handleDeleteClick={handleDeleteClick}
           handleRenameClick={handleRenameClick}
           provideOptionChange={setOptionSelectedDiff}
+          selectedOptionsBefore={selectedOptionBefore}
         />
       );
     } else {
       return <div>該当する人物が存在しません</div>;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, options]);
+  }, [questions, options, selectedOptionBefore]);
 
   const [vol, setVol] = useState(1);
   const [file, setFile] = useState(1);
@@ -533,25 +538,43 @@ const RefineRadio = () => {
       console.log("xxx");
       console.log(xxx);
       console.log(file_id);
-      // const appearling_list = await getAppearingWithFileIdFromDb(file_id);
+      const rrr = Object.keys(xxx).map((item) => item);
+      // console.log("rrr");
+      // console.log(rrr);
+      const sss = await questions.reduce(async (acc, item) => {
+        acc = await acc;
+        const tmp = await getTaskIdFromDb(item);
+        acc = { ...acc, [tmp]: item };
+        return acc;
+      }, {});
+      // console.log("sss");
+      // console.log(sss);
+      const appearling_list = await getAppearingWithFileIdFromDb(file_id);
+      // console.log("appearling_list");
       // console.log(appearling_list);
-      // console.log(appearling_list[0]);
-      // console.log(appearling_list[0]["appearing_detail_id"]);
-      // const ccc = appearling_list[0]["appearing_detail_id"];
-      // console.log(xxx[ccc]);
-      // console.log(xxx);
-      // const bbb = appearling_list.reduce((accumulator, item) => {
-      //   const tmp = item["appearing_detail_id"];
-      //   return { ...accumulator, 1: xxx[tmp] };
-      // }, {});
-      // console.log(bbb);
-      // console.log(xxx[appearling_list[0]["appearing_detail_id"]]);
+      const bbb = appearling_list.reduce((acc, item) => {
+        const task_id = item["task_id"];
+        const task = sss[task_id];
+        const appearing_detail_id = item["appearing_detail_id"];
+        // console.log(`appearing_detail_id = ${appearing_detail_id}`);
+        const optionNum = rrr.indexOf(String(appearing_detail_id));
+        // console.log(optionNum);
+        return { ...acc, [task]: optionNum };
+      }, {});
+      console.log("bbb");
+      console.log(bbb);
+      setSelectedOptionBefore(bbb);
     } catch {
       console.error(
         "Cannot access getAppearingWithFileIdFromDb before initialization"
       );
     }
   };
+
+  useMemo(() => {
+    console.log("selectedOptionBefore");
+    console.log(selectedOptionBefore);
+  }, [selectedOptionBefore]);
 
   useMemo(() => console.log(`file_id = ${fileId}`), [fileId]);
   useMemo(() => console.log(`vol = ${vol}`), [vol]);

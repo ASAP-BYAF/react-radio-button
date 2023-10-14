@@ -12,9 +12,16 @@ function RadioButtonForm(props) {
     handleDeleteClick = () => {},
     handleRenameClick = () => {},
     provideOptionChange = () => {},
+    selectedOptionsBefore = {},
   } = props;
 
   const [selectedOptions, setSelectedOptions] = useState({});
+
+  // 選択状況を得たときはそれを各選択制の初期値に設定します。
+  useMemo(
+    () => setSelectedOptions(selectedOptionsBefore),
+    [selectedOptionsBefore]
+  );
 
   useEffect(() => {
     const sign = questionsDiff[0];
