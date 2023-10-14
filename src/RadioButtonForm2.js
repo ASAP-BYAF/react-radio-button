@@ -32,7 +32,6 @@ function RadioButtonForm(props) {
       );
     } else if (sign === "deleted") {
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
-      setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
     } else if (sign === "renamed") {
       const oldValue = diff[0];
       const newValue = diff[1];
