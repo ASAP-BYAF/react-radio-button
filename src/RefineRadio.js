@@ -29,6 +29,7 @@ import {
   getAppearingWithFileId,
   updateAppearing,
 } from "./api/appearing.js";
+import { addFile, getFileById, updateFile } from "./api/file.js";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -241,19 +242,7 @@ const RefineRadio = () => {
 
   // 巻数あるいはファイル番号が変わるたびにこの関数を実行
   useMemo(async () => {
-    console.log("fileIdSet");
-    const url = "http://127.0.0.1:8000/file_name_by_vol_file";
-    const data = {
-      method: "POST",
-      body: JSON.stringify({
-        vol_num: vol,
-        file_num: file,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
+    const res = await getFileById(vol, file);
     if (res.message === "None") {
       setFileName("NoneNone");
       setFileId(-1);
@@ -278,48 +267,14 @@ const RefineRadio = () => {
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
       setFileName(ret);
       if (filename === "NoneNone") {
-        const file_id = await addFileToDb(vol, file, ret);
+        const file_id = await addFile(vol, file, ret);
         setFileId(file_id);
       } else {
-        const file_id = await updateFileToDb(fileId, vol, file, ret);
-        setFileId(file_id);
+        const res = await updateFile(fileId, vol, file, ret);
+        setFileId(res.id);
       }
       setFileExist(true);
     }
-  };
-
-  const updateFileToDb = async (file_id, vol_num, file_num, file_name) => {
-    const url3 = `http://127.0.0.1:8000/file_update/${file_id}`;
-    const data3 = {
-      method: "put",
-      body: JSON.stringify({
-        vol_num: vol_num,
-        file_num: file_num,
-        file_name: file_name,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res3 = await fetcher(url3, data3);
-    return res3.id;
-  };
-
-  const addFileToDb = async (vol_num, file_num, file_name) => {
-    const url3 = "http://127.0.0.1:8000/file_create";
-    const data3 = {
-      method: "post",
-      body: JSON.stringify({
-        vol_num: vol_num,
-        file_num: file_num,
-        file_name: file_name,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res3 = await fetcher(url3, data3);
-    return res3.id;
   };
 
   const handleAddOptions = async () => {
