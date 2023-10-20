@@ -64,8 +64,6 @@ const RefineRadio = () => {
           return { ...accumulator, [x["id"]]: x["appearing_detail"] };
         }, {});
         setOptions(tmp);
-        console.log("setOptions");
-        // setQuestions(tmp); // res のデータをセット
       } catch (error) {
         console.error(error);
       }
@@ -361,9 +359,6 @@ const RefineRadio = () => {
 
   const aaa = async (xxx, file_id) => {
     try {
-      console.log("xxx");
-      console.log(xxx);
-      console.log(file_id);
       const rrr = Object.keys(xxx).map((item) => item);
       const sss = await questions.reduce(async (acc, item) => {
         acc = await acc;
@@ -379,8 +374,6 @@ const RefineRadio = () => {
         const optionNum = rrr.indexOf(String(appearing_detail_id));
         return { ...acc, [task]: optionNum };
       }, {});
-      console.log("bbb");
-      console.log(bbb);
       setSelectedOptionBefore(bbb);
     } catch {
       console.error(
@@ -388,14 +381,6 @@ const RefineRadio = () => {
       );
     }
   };
-
-  useMemo(() => {
-    console.log("selectedOptionBefore");
-    console.log(selectedOptionBefore);
-  }, [selectedOptionBefore]);
-
-  useMemo(() => console.log(`file_id = ${fileId}`), [fileId]);
-  useMemo(() => console.log(`vol = ${vol}`), [vol]);
 
   useMemo(async () => {
     if (fileExist && optionExist) {
