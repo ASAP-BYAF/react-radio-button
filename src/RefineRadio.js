@@ -4,11 +4,19 @@ import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm2 from "./RadioButtonForm2";
 // import RadioButtonForm from "./RadioButtonForm";
 import { fetcher } from "./api/fetcher.js";
+import {
+  addTask,
+  deleteTask,
+  deleteTaskById,
+  getTaskAll,
+  getTaskByTitle,
+} from "./api/task.js";
 import { concatObject } from "./util/add.js";
 import { deleteItemFromArray, deleteItemFromObject } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
 import NumberDropdown from "./NumberDropdown";
 import { arrayToObject } from "./util/add";
+import { getByAltText, getByTitle } from "@testing-library/react";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -30,9 +38,7 @@ const RefineRadio = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = "http://127.0.0.1:8000/tasks";
-        const data = { method: "GET" };
-        const res = await fetcher(url, data);
+        const res = await getTaskAll();
         const tmp = res.map((value2) => value2["title"]);
         // setQuestions(tmp); // res のデータをセット
         const diff = updateQuestions(tmp, "added");
@@ -131,21 +137,8 @@ const RefineRadio = () => {
     setModalConfig(undefined);
     if (ret === "ok") {
       updateQuestions([x], "deleted");
-      const url = "http://127.0.0.1:8000/task_by_title";
-      const data = {
-        method: "POST",
-        body: JSON.stringify({
-          title: x,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      };
-      const res = await fetcher(url, data);
-
-      const url2 = `http://127.0.0.1:8000/tasks/${res.id}`;
-      const data2 = { method: "DELETE" };
-      const res2 = await fetcher(url2, data2);
+      const res = await getTaskByTitle(x);
+      await deleteTaskById(res.id);
     }
   };
 
@@ -187,32 +180,12 @@ const RefineRadio = () => {
   };
 
   const addTaskToDb = async (title) => {
-    const url = "http://127.0.0.1:8000/tasks";
-    const data = {
-      method: "POST",
-      body: JSON.stringify({
-        title: title,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
+    const res = await addTask(title);
     return res.id;
   };
 
   const getTaskIdFromDb = async (title) => {
-    const url = "http://127.0.0.1:8000/task_by_title";
-    const data = {
-      method: "POST",
-      body: JSON.stringify({
-        title: title,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
+    const res = await getTaskByTitle(title);
     return res.id;
   };
 
