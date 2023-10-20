@@ -17,6 +17,11 @@ import { renameItemInArray } from "./util/rename.js";
 import NumberDropdown from "./NumberDropdown";
 import { arrayToObject } from "./util/add";
 import { getByAltText, getByTitle } from "@testing-library/react";
+import {
+  addAppearingDetail,
+  getAppearingDetailByName,
+  updateAppearingDetail,
+} from "./api/appearingDetail.js";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -162,21 +167,6 @@ const RefineRadio = () => {
     //　task (人物) を DB にも追加する。
     await addTaskToDb(filterText);
     setVisibleAdd(false);
-  };
-
-  const getAppearingDetailByNameFromDb = async (appearing_detail_name) => {
-    const url = "http://127.0.0.1:8000/appearing_detail_by_name";
-    const data = {
-      method: "POST",
-      body: JSON.stringify({
-        appearing_detail: appearing_detail_name,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
-    return res.id;
   };
 
   const addTaskToDb = async (title) => {
@@ -359,25 +349,10 @@ const RefineRadio = () => {
   };
 
   const handleAddOptions = async () => {
-    const appearing_detail_id = await addAppearingDetailToDb(optionInput);
+    const appearing_detail_id = await addAppearingDetail(optionInput);
     setOptions((prev) =>
       concatObject(prev, { [appearing_detail_id]: optionInput })
     );
-  };
-
-  const addAppearingDetailToDb = async (appearing_detail) => {
-    const url3 = "http://127.0.0.1:8000/appearing_detail_create";
-    const data3 = {
-      method: "post",
-      body: JSON.stringify({
-        appearing_detail: appearing_detail,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res3 = await fetcher(url3, data3);
-    return res3.id;
   };
 
   const tmp123 = () => {
@@ -458,42 +433,11 @@ const RefineRadio = () => {
     setModalConfigRename(undefined);
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed) {
-      const appearing_detail_id = await getAppearingDetailIdFromDbByName(x);
-      await updateAppearingDetailOnDb(appearing_detail_id, ret);
+      const res = await getAppearingDetailByName(x);
+      const appearing_detail_id = res.id;
+      await updateAppearingDetail(appearing_detail_id, ret);
       setOptions((prev) => ({ ...prev, [appearing_detail_id]: ret }));
     }
-  };
-
-  const getAppearingDetailIdFromDbByName = async (appearing_detail_name) => {
-    const url = "http://127.0.0.1:8000/appearing_detail_by_name";
-    const data = {
-      method: "POST",
-      body: JSON.stringify({
-        appearing_detail: appearing_detail_name,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
-    return res.id;
-  };
-
-  const updateAppearingDetailOnDb = async (
-    appearing_detail_id,
-    new_appearing_detail_name
-  ) => {
-    const url3 = `http://127.0.0.1:8000/update_appearing_detail/${appearing_detail_id}`;
-    const data3 = {
-      method: "put",
-      body: JSON.stringify({
-        appearing_detail: new_appearing_detail_name,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res3 = await fetcher(url3, data3);
   };
 
   const getAppearingWithFileIdFromDb = async (file_id) => {
