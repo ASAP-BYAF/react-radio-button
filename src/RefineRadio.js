@@ -22,6 +22,13 @@ import {
   getAppearingDetailByName,
   updateAppearingDetail,
 } from "./api/appearingDetail.js";
+import {
+  addAppearing,
+  deleteAppearing,
+  getAppearingAll,
+  getAppearingWithFileId,
+  updateAppearing,
+} from "./api/appearing.js";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -46,14 +53,12 @@ const RefineRadio = () => {
         const res = await getTaskAll();
         const tmp = res.map((value2) => value2["title"]);
         // setQuestions(tmp); // res のデータをセット
-        const diff = updateQuestions(tmp, "added");
+        updateQuestions(tmp, "added");
       } catch (error) {
         console.error(error);
       }
       try {
-        const url = "http://127.0.0.1:8000/appearings";
-        const data = { method: "GET" };
-        const res = await fetcher(url, data);
+        const res = await getAppearingAll();
         const tmp = res.reduce((accumulator, x) => {
           return { ...accumulator, [x["id"]]: x["appearing_detail"] };
         }, {});
@@ -179,39 +184,6 @@ const RefineRadio = () => {
     return res.id;
   };
 
-  const addAppearingToDb = async (file_id, task_id, appearing_detail_id) => {
-    const url3 = "http://127.0.0.1:8000/appearing_create";
-    const data3 = {
-      method: "post",
-      body: JSON.stringify({
-        file_id: file_id,
-        task_id: task_id,
-        appearing_detail_id: appearing_detail_id,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res3 = await fetcher(url3, data3);
-  };
-
-  const updateAppearingToDb = async (file_id, task_id, appearing_detail_id) => {
-    const url3 = "http://127.0.0.1:8000/appearing_update";
-    const data3 = {
-      method: "put",
-      body: JSON.stringify({
-        file_id: file_id,
-        task_id: task_id,
-        appearing_detail_id: appearing_detail_id,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url3, data3);
-    return res;
-  };
-
   useMemo(async () => {
     if (Object.keys(optionSelectedDiff).length !== 0) {
       const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
@@ -220,15 +192,17 @@ const RefineRadio = () => {
       const new_appearing_detail_id = Object.keys(options).find(
         (key) => options[key] === selectedOptionNum
       );
-      const res = await updateAppearingToDb(
+      const res = await updateAppearing(
         fileId,
         task_id,
         new_appearing_detail_id
       );
       // 未選択の場合、更新する対象が見つからないので、新たに作成する。
       if (res === 404) {
-        console.error("error");
-        await addAppearingToDb(fileId, task_id, new_appearing_detail_id);
+        console.error(
+          "未選択の場合、更新する対象が見つからないので、新たに作成する。"
+        );
+        await addAppearing(fileId, task_id, new_appearing_detail_id);
       }
     }
   }, [optionSelectedDiff]);
@@ -392,7 +366,7 @@ const RefineRadio = () => {
     return tmp;
   }, [options]);
 
-  const handleDeleteOption = async (optionName) => {
+  const handleDeleteOption = async (appearing_name) => {
     const ret = await new Promise((resolve) => {
       setModalConfig({
         onClose: resolve,
@@ -402,19 +376,9 @@ const RefineRadio = () => {
     });
     setModalConfig(undefined);
     if (ret === "ok") {
-      const url3 = "http://127.0.0.1:8000/appearing_delete";
-      const data3 = {
-        method: "delete",
-        body: JSON.stringify({
-          appearing_detail: optionName,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      };
-      await fetcher(url3, data3);
+      await deleteAppearing(appearing_name);
       const old_id = Object.keys(options).find(
-        (key) => options[key] === optionName
+        (key) => options[key] === appearing_name
       );
       const tmp = deleteItemFromObject(options, old_id);
       setOptions(tmp);
@@ -440,18 +404,6 @@ const RefineRadio = () => {
     }
   };
 
-  const getAppearingWithFileIdFromDb = async (file_id) => {
-    const url = `http://127.0.0.1:8000/appearing_with_file_id/${file_id}`;
-    const data = {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    };
-    const res = await fetcher(url, data);
-    return res;
-  };
-
   const aaa = async (xxx, file_id) => {
     try {
       console.log("xxx");
@@ -464,7 +416,7 @@ const RefineRadio = () => {
         acc = { ...acc, [tmp]: item };
         return acc;
       }, {});
-      const appearling_list = await getAppearingWithFileIdFromDb(file_id);
+      const appearling_list = await getAppearingWithFileId(file_id);
       const bbb = appearling_list.reduce((acc, item) => {
         const task_id = item["task_id"];
         const task = sss[task_id];
