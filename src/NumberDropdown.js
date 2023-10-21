@@ -12,15 +12,15 @@ const NumberDropdown = (props) => {
   }
 
   return (
-    <div>
-      <label htmlFor="numberDropdown">{label}: </label>
+    <span>
       <select
         id="numberDropdown"
         onChange={(e) => handleChange(e.target.value)}
       >
         {options}
       </select>
-    </div>
+      <label htmlFor="numberDropdown"> {label} </label>
+    </span>
   );
 };
 
