@@ -125,6 +125,11 @@ const RefineRadio = () => {
     }
   };
 
+  const handleFileNameChange = (e) => {
+    const newFilename = e.target.value;
+    setFileName(newFilename);
+  };
+
   const handleOptionInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
     setOptionInput(newText);
@@ -241,7 +246,7 @@ const RefineRadio = () => {
   useMemo(async () => {
     const res = await getFileById(vol, file);
     if (res.message === "None") {
-      setFileName("NoneNone");
+      setFileName("");
       setFileId(-1);
       setFileExist(false);
     } else {
@@ -251,29 +256,16 @@ const RefineRadio = () => {
     }
   }, [vol, file]);
 
-  const fileRename = async (x) => {
-    const ret = await new Promise((resolve) => {
-      setModalConfigRename({
-        onClose: resolve,
-        title: "新しいファイル名を入力してください。",
-        message: "空白のみにはできません。",
-        oldText: x,
-      });
-    });
-    setModalConfigRename(undefined);
-    const ret_trimed = ret.trim();
-    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
-      setFileName(ret);
-      if (filename === "NoneNone") {
-        const res = await addFile(vol, file, ret);
-        await aaa(options, res.id);
-        setFileId(res.id);
-      } else {
-        const res = await updateFile(fileId, vol, file, ret);
-        setFileId(res.id);
-      }
-      setFileExist(true);
+  const confirmFileName = async () => {
+    if (fileId < 0) {
+      const res = await addFile(vol, file, filename);
+      await aaa(options, res.id);
+      setFileId(res.id);
+    } else {
+      const res = await updateFile(fileId, vol, file, filename);
+      setFileId(res.id);
     }
+    setFileExist(true);
   };
 
   const handleAddOptions = async (newOptionName) => {
@@ -390,10 +382,11 @@ const RefineRadio = () => {
           label="話"
           handleChange={handleFileNumChange}
         />
-        <input
-          type="text"
-          value={filename}
-          onClick={(e) => fileRename(e.target.value)}
+        <input type="text" value={filename} onChange={handleFileNameChange} />
+        <Button
+          name="confirmButton"
+          handleClick={confirmFileName}
+          icon="confirm"
         />
       </div>
 
