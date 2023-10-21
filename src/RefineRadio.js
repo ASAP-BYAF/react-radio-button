@@ -107,22 +107,6 @@ const RefineRadio = () => {
     setOptionInput(newText);
   };
 
-  const handleDeleteClick = async (x) => {
-    const ret = await new Promise((resolve) => {
-      setModalConfig({
-        onClose: resolve,
-        title: "削除します。よろしいですか?",
-        message: "削除すると二度と元に戻せません。",
-      });
-    });
-    setModalConfig(undefined);
-    if (ret === "ok") {
-      updateQuestions([x], "deleted");
-      const res = await getTaskByTitle(x);
-      await deleteTaskById(res.id);
-    }
-  };
-
   const handleAddItem = async () => {
     updateQuestions([filterText], "added");
     //　task (人物) を DB にも追加する。
@@ -161,26 +145,6 @@ const RefineRadio = () => {
     );
   };
 
-  const handleDeleteOption = async (appearing_detail_name) => {
-    const ret = await new Promise((resolve) => {
-      setModalConfig({
-        onClose: resolve,
-        title: "削除します。よろしいですか?",
-        message: "削除すると二度と元に戻せません。",
-      });
-    });
-    setModalConfig(undefined);
-    if (ret === "ok") {
-      await deleteAppearingDetail(appearing_detail_name);
-      const old_id = Object.keys(options).find(
-        (key) => options[key] === appearing_detail_name
-      );
-      const newOptions = deleteItemFromObject(options, old_id);
-      setOptions(newOptions);
-      await getSelectedBefore(newOptions, fileId);
-    }
-  };
-
   const toggleRenameModel = async (x) => {
     const ret = await new Promise((resolve) => {
       setModalConfigRename({
@@ -212,6 +176,40 @@ const RefineRadio = () => {
       updateQuestions([x, ret], "renamed");
       const res = await getTaskByTitle(x);
       await updateTask(res.id, ret);
+    }
+  };
+
+  const toggleDeleteModel = async () => {
+    const ret = await new Promise((resolve) => {
+      setModalConfig({
+        onClose: resolve,
+        title: "削除します。よろしいですか?",
+        message: "削除すると二度と元に戻せません。",
+      });
+    });
+    setModalConfig(undefined);
+    return ret;
+  };
+
+  const handleDeleteOption = async (appearing_detail_name) => {
+    const ret = await toggleDeleteModel();
+    if (ret === "ok") {
+      await deleteAppearingDetail(appearing_detail_name);
+      const old_id = Object.keys(options).find(
+        (key) => options[key] === appearing_detail_name
+      );
+      const newOptions = deleteItemFromObject(options, old_id);
+      setOptions(newOptions);
+      await getSelectedBefore(newOptions, fileId);
+    }
+  };
+
+  const handleDeleteTask = async (x) => {
+    const ret = await toggleDeleteModel();
+    if (ret === "ok") {
+      updateQuestions([x], "deleted");
+      const res = await getTaskByTitle(x);
+      await deleteTaskById(res.id);
     }
   };
 
@@ -402,7 +400,7 @@ const RefineRadio = () => {
           options={Object.keys(options).map((item, idx) => {
             return idx;
           })}
-          handleDeleteClick={handleDeleteClick}
+          handleDeleteClick={handleDeleteTask}
           handleRenameClick={handleRenameTask}
           provideOptionChange={setOptionSelectedDiff}
           selectedOptionsBefore={selectedOptionBefore}
