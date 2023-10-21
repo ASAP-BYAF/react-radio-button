@@ -381,13 +381,13 @@ const RefineRadio = () => {
         <NumberDropdown
           n_st={1}
           n_ed={103}
-          label="vol"
+          label="巻"
           handleChange={handleVolNumChange}
         />
         <NumberDropdown
           n_st={1}
           n_ed={11}
-          label="file"
+          label="話"
           handleChange={handleFileNumChange}
         />
         <input
@@ -396,16 +396,6 @@ const RefineRadio = () => {
           onClick={(e) => fileRename(e.target.value)}
         />
       </div>
-
-      <input
-        type="text"
-        placeholder="add options"
-        onChange={handleOptionInputChange}
-      />
-      <button type="button" onClick={handleAddOptions}>
-        add
-      </button>
-      <div>{optionList}</div>
 
       <div style={{ display: fileExist && optionExist ? "block" : "none" }}>
         <input
@@ -423,6 +413,18 @@ const RefineRadio = () => {
         </button>
         {memoQuestions}
       </div>
+
+      <hr></hr>
+      <input
+        type="text"
+        placeholder="add options"
+        onChange={handleOptionInputChange}
+      />
+      <button type="button" onClick={handleAddOptions}>
+        add
+      </button>
+      <div>{optionList}</div>
+
       {modalConfig && <MyDialog {...modalConfig} />}
       {modalConfigRename && <MyDialogRename {...modalConfigRename} />}
     </div>
