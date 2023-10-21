@@ -52,7 +52,6 @@ const RefineRadio = () => {
       try {
         const res = await getTaskAll();
         const tmp = res.map((value2) => value2["title"]);
-        // setQuestions(tmp); // res のデータをセット
         updateQuestions(tmp, "added");
       } catch (error) {
         console.error(error);
@@ -208,8 +207,8 @@ const RefineRadio = () => {
   }, [optionSelectedDiff]);
 
   const memoQuestions = useMemo(() => {
-    if (questions.length > 0) {
-      return (
+    return (
+      <div>
         <RadioButtonForm2
           questions={questions}
           questionsDiff={questionsDiff}
@@ -221,10 +220,9 @@ const RefineRadio = () => {
           provideOptionChange={setOptionSelectedDiff}
           selectedOptionsBefore={selectedOptionBefore}
         />
-      );
-    } else {
-      return <div>該当する人物が存在しません</div>;
-    }
+        {questions.length === 0 && <div>該当する人物が見つかりません</div>}
+      </div>
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, options, selectedOptionBefore]);
 
@@ -286,7 +284,6 @@ const RefineRadio = () => {
     );
   };
 
-  console.log(options);
   const handleDeleteOption = async (appearing_detail_name) => {
     const ret = await new Promise((resolve) => {
       setModalConfig({
