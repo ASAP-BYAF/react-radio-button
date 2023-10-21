@@ -158,6 +158,7 @@ const RefineRadio = () => {
         onClose: resolve,
         title: "新しい選択肢を入力してください。",
         message: "空白のみにはできません。",
+        oldText: x,
       });
     });
     setModalConfigRename(undefined);
@@ -255,12 +256,13 @@ const RefineRadio = () => {
     }
   }, [vol, file]);
 
-  const fileRename = async () => {
+  const fileRename = async (x) => {
     const ret = await new Promise((resolve) => {
       setModalConfigRename({
         onClose: resolve,
         title: "新しいファイル名を入力してください。",
         message: "空白のみにはできません。",
+        oldText: x,
       });
     });
     setModalConfigRename(undefined);
@@ -348,6 +350,7 @@ const RefineRadio = () => {
         onClose: resolve,
         title: "新しい選択肢を入力してください。",
         message: "空白のみにはできません。",
+        oldText: x,
       });
     });
     setModalConfigRename(undefined);
@@ -406,7 +409,11 @@ const RefineRadio = () => {
           label="file"
           handleChange={handleFileNumChange}
         />
-        <input type="text" value={filename} onClick={fileRename} />
+        <input
+          type="text"
+          value={filename}
+          onClick={(e) => fileRename(e.target.value)}
+        />
       </div>
 
       <input

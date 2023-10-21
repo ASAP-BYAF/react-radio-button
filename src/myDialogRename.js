@@ -16,8 +16,8 @@ import { useState } from "react";
 
 // export function MyDialog(props: MyDialogProps) {
 export function MyDialogRename(props) {
-  const { onClose, title, message } = props;
-  const [filterText, setFilterText] = useState("");
+  const { onClose, title, message, oldText } = props;
+  const [filterText, setFilterText] = useState(oldText);
 
   const handleInputChange = (event) => {
     const newText = event.target.value;
@@ -25,7 +25,7 @@ export function MyDialogRename(props) {
   };
 
   return (
-    <Dialog open onClose={() => onClose("close")}>
+    <Dialog open onClose={() => onClose("cancel")}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
@@ -34,6 +34,7 @@ export function MyDialogRename(props) {
         <input
           type="text"
           placeholder="絞り込む文字を入力"
+          value={filterText}
           onChange={handleInputChange}
         />
         <Button onClick={() => onClose(filterText)}>確定</Button>
