@@ -1,7 +1,7 @@
 import { fetcher } from "./fetcher.js";
 
 export const getAppearingDetailByName = async (appearing_detail_name) => {
-  const url = "http://127.0.0.1:8000/appearing_detail_by_name";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/appearing_detail_by_name`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -16,7 +16,7 @@ export const getAppearingDetailByName = async (appearing_detail_name) => {
 };
 
 export const addAppearingDetail = async (appearing_detail) => {
-  const url = "http://127.0.0.1:8000/appearing_detail_create";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/appearing_detail_create`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -34,7 +34,7 @@ export const updateAppearingDetail = async (
   appearing_detail_id,
   new_appearing_detail_name
 ) => {
-  const url = `http://127.0.0.1:8000/update_appearing_detail/${appearing_detail_id}`;
+  const url = `${process.env.REACT_APP_DB_API_HOST}/update_appearing_detail/${appearing_detail_id}`;
   const data = {
     method: "put",
     body: JSON.stringify({

@@ -1,7 +1,8 @@
 import { fetcher } from "./fetcher.js";
 
 export const getFileById = async (vol, file) => {
-  const url = "http://127.0.0.1:8000/file_name_by_vol_file";
+  // const url = "http://127.0.0.1:8000/file_name_by_vol_file";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/file_name_by_vol_file`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -17,7 +18,7 @@ export const getFileById = async (vol, file) => {
 };
 
 export const addFile = async (vol_num, file_num, file_name) => {
-  const url = "http://127.0.0.1:8000/file_create";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/file_create`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -34,7 +35,7 @@ export const addFile = async (vol_num, file_num, file_name) => {
 };
 
 export const updateFile = async (file_id, vol_num, file_num, file_name) => {
-  const url = `http://127.0.0.1:8000/file_update/${file_id}`;
+  const url = `${process.env.REACT_APP_DB_API_HOST}/file_update/${file_id}`;
   const data = {
     method: "PUT",
     body: JSON.stringify({

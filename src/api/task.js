@@ -1,7 +1,7 @@
 import { fetcher } from "./fetcher.js";
 
 export const getTaskByTitle = async (title) => {
-  const url = "http://127.0.0.1:8000/task_by_title";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/task_by_title`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -16,14 +16,14 @@ export const getTaskByTitle = async (title) => {
 };
 
 export const getTaskAll = async () => {
-  const url = "http://127.0.0.1:8000/tasks";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/tasks`;
   const data = { method: "GET" };
   const res = await fetcher(url, data);
   return res;
 };
 
 export const addTask = async (title) => {
-  const url = "http://127.0.0.1:8000/tasks";
+  const url = `${process.env.REACT_APP_DB_API_HOST}/tasks`;
   const data = {
     method: "POST",
     body: JSON.stringify({
@@ -38,7 +38,7 @@ export const addTask = async (title) => {
 };
 
 export const deleteTaskById = async (task_id) => {
-  const url = `http://127.0.0.1:8000/tasks/${task_id}`;
+  const url = `${process.env.REACT_APP_DB_API_HOST}/tasks/${task_id}`;
   const data = { method: "DELETE" };
   const res = await fetcher(url, data);
   return res;
