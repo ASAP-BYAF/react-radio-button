@@ -44,10 +44,17 @@ const RefineRadio = () => {
   const [selectedOptionBefore, setSelectedOptionBefore] = useState(
     arrayToObject(questions, options[0])
   );
+  const [modalConfig, setModalConfig] = useState(undefined);
+  const [modalConfigRename, setModalConfigRename] = useState(undefined);
+  const [vol, setVol] = useState(1);
+  const [file, setFile] = useState(1);
+  const [filename, setFileName] = useState("");
+  const [fileId, setFileId] = useState();
 
   // DB から質問のリストを取得。
   // 空の依存リストを渡すことで、コンポーネントがマウントされたときにのみ実行される
   useEffect(() => {
+    // console.log("useeffect");
     const fetchData = async () => {
       try {
         const res = await getTaskAll();
@@ -70,41 +77,6 @@ const RefineRadio = () => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useMemo(() => {
-    if (Object.keys(options).length > 0) {
-      setOptionExist(true);
-    } else {
-      setOptionExist(false);
-    }
-  }, [options]);
-  // 質問の追加、削除、変更時に現在表示している質問とすべての質問を更新。
-  // また、前回との差分を計算。
-  const updateQuestions = (x, sign) => {
-    // x は配列を想定。
-    if (sign === "added") {
-      // 最初の DB からとってくるときのみ x の長さは 1 とは限らない。
-      // そのため、diff = x[0] ではだめ。
-      const diff = x.filter((value) => {
-        return !questions.includes(value);
-      });
-      setQuestions((prev) => [...prev, ...x]);
-      setAllQuestions((prev) => [...prev, ...x]);
-      setQuestionsDiff([sign, diff]);
-    } else if (sign === "deleted") {
-      const diff = x[0];
-      setQuestions((prev) => deleteItemFromArray(prev, diff));
-      setAllQuestions((prev) => deleteItemFromArray(prev, diff));
-      setQuestionsDiff([sign, diff]);
-    } else if (sign === "renamed") {
-      const oldValue = x[0];
-      const newValue = x[1];
-      setQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
-      setAllQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
-      setQuestionsDiff([sign, [oldValue, newValue]]);
-      return "renamed";
-    }
-  };
 
   const handleInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
@@ -134,9 +106,6 @@ const RefineRadio = () => {
     const newText = event.target.value;
     setOptionInput(newText);
   };
-
-  const [modalConfig, setModalConfig] = useState(undefined);
-  const [modalConfigRename, setModalConfigRename] = useState(undefined);
 
   const handleDeleteClick = async (x) => {
     const ret = await new Promise((resolve) => {
@@ -184,57 +153,6 @@ const RefineRadio = () => {
     return res.id;
   };
 
-  useMemo(async () => {
-    if (Object.keys(optionSelectedDiff).length !== 0) {
-      const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
-      if (optionSelectedDiff["value"]) {
-        const selectedOptionNum =
-          Object.values(options)[optionSelectedDiff["value"]];
-        const new_appearing_detail_id = Object.keys(options).find(
-          (key) => options[key] === selectedOptionNum
-        );
-        const res = await updateAppearing(
-          fileId,
-          task_id,
-          new_appearing_detail_id
-        );
-        // 未選択の場合、更新する対象が見つからないので、新たに作成する。
-        if (res === 404) {
-          console.error(
-            "未選択の場合、更新する対象が見つからないので、新たに作成する。"
-          );
-          await addAppearing(fileId, task_id, new_appearing_detail_id);
-        }
-      } else {
-        await deleteAppearing(fileId, task_id);
-      }
-    }
-  }, [optionSelectedDiff]);
-
-  const memoQuestions = useMemo(() => {
-    return (
-      <div>
-        <RadioButtonForm2
-          questions={questions}
-          questionsDiff={questionsDiff}
-          options={Object.keys(options).map((item, idx) => {
-            return idx;
-          })}
-          handleDeleteClick={handleDeleteClick}
-          handleRenameClick={handleRenameClick}
-          provideOptionChange={setOptionSelectedDiff}
-          selectedOptionsBefore={selectedOptionBefore}
-        />
-        {questions.length === 0 && <div>該当する人物が見つかりません</div>}
-      </div>
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, options, selectedOptionBefore]);
-
-  const [vol, setVol] = useState(1);
-  const [file, setFile] = useState(1);
-  const [filename, setFileName] = useState("");
-  const [fileId, setFileId] = useState();
   const handleVolNumChange = (x) => {
     setVol(x);
   };
@@ -242,24 +160,9 @@ const RefineRadio = () => {
     setFile(x);
   };
 
-  // 巻数あるいはファイル番号が変わるたびにこの関数を実行
-  useMemo(async () => {
-    const res = await getFileById(vol, file);
-    if (res.message === "None") {
-      setFileName("");
-      setFileId(-1);
-      setFileExist(false);
-    } else {
-      setFileName(res.file_name);
-      setFileId(res.id);
-      setFileExist(true);
-    }
-  }, [vol, file]);
-
   const confirmFileName = async () => {
     if (fileId < 0) {
       const res = await addFile(vol, file, filename);
-      await getSelectedBefore(options, res.id);
       setFileId(res.id);
     } else {
       const res = await updateFile(fileId, vol, file, filename);
@@ -315,21 +218,33 @@ const RefineRadio = () => {
     }
   };
 
-  const optionList = useMemo(() => {
-    const tmpOptionList = [];
-    Object.values(options).forEach((item, idx) => {
-      tmpOptionList.push(
-        <div key={item}>
-          <span>
-            {idx}: {item} /
-          </span>
-          <Button name={item} handleClick={handleDeleteOption} icon="✕" />
-          <Button name={item} handleClick={handleRenameOption} icon="✑" />
-        </div>
-      );
-    });
-    return tmpOptionList;
-  }, [options]);
+  // 質問の追加、削除、変更時に現在表示している質問とすべての質問を更新。
+  // また、前回との差分を計算。
+  const updateQuestions = (x, sign) => {
+    // x は配列を想定。
+    if (sign === "added") {
+      // 最初の DB からとってくるときのみ x の長さは 1 とは限らない。
+      // そのため、diff = x[0] ではだめ。
+      const diff = x.filter((value) => {
+        return !questions.includes(value);
+      });
+      setQuestions((prev) => [...prev, ...x]);
+      setAllQuestions((prev) => [...prev, ...x]);
+      setQuestionsDiff([sign, diff]);
+    } else if (sign === "deleted") {
+      const diff = x[0];
+      setQuestions((prev) => deleteItemFromArray(prev, diff));
+      setAllQuestions((prev) => deleteItemFromArray(prev, diff));
+      setQuestionsDiff([sign, diff]);
+    } else if (sign === "renamed") {
+      const oldValue = x[0];
+      const newValue = x[1];
+      setQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
+      setAllQuestions((prev) => renameItemInArray(prev, oldValue, newValue));
+      setQuestionsDiff([sign, [oldValue, newValue]]);
+      return "renamed";
+    }
+  };
 
   const getSelectedBefore = async (options, file_id) => {
     // 入力
@@ -363,6 +278,13 @@ const RefineRadio = () => {
     //         (1) の各要素について taskId を (2) を通して taskName に変換、
     //         appearingDetailId を (3) を通して optionNum に変換し、(4) を作成。
     //
+
+    // console.log(`fileId = ${fileId}`);
+    // console.log(`fileExist = ${fileExist}`);
+    // console.log(`optionExist = ${optionExist}`);
+    // console.log("options !!");
+    // console.log(options);
+    // console.log("================================");
     try {
       const appearlingList = await getAppearingWithFileId(file_id);
       const taskIdNameObj = await allQuestions.reduce(async (acc, item) => {
@@ -389,14 +311,114 @@ const RefineRadio = () => {
     }
   };
 
+  useMemo(() => {
+    // console.log("usememo1");
+    if (Object.keys(options).length > 0) {
+      setOptionExist(true);
+    } else {
+      setOptionExist(false);
+    }
+  }, [options]);
+
   useMemo(async () => {
+    // console.log("usememo2");
+    // 基本的には fileId が変化して、かつ file と option が存在するときに実行。
+    // ただし、初期レンダリング時は fileId が変化しないが実行が必要。
+    // そのため、選択肢があることをトリガーにして実行するようにしている。
+    // (理由)
+    // 初期レンダリング時はまず、 useMemo（上から順に）、その次に useEffect が実行され、
+    // その後、state の変更順序に応じてそれに依存する useMemo が実行されるようである。
+    // 依存関係から
+    // (1) fileId, fileExist (usememo4 内)
+    // (2) optionExist の順 (useeffect -> usememo1 内)
+    // という順序で変更されるから。
     if (fileExist && optionExist) {
       await getSelectedBefore(options, fileId);
     }
   }, [fileId, fileExist, optionExist]);
 
+  useMemo(async () => {
+    // console.log("usememo3");
+    if (Object.keys(optionSelectedDiff).length !== 0) {
+      const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
+      if (optionSelectedDiff["value"]) {
+        const selectedOptionNum =
+          Object.values(options)[optionSelectedDiff["value"]];
+        const new_appearing_detail_id = Object.keys(options).find(
+          (key) => options[key] === selectedOptionNum
+        );
+        const res = await updateAppearing(
+          fileId,
+          task_id,
+          new_appearing_detail_id
+        );
+        // 未選択の場合、更新する対象が見つからないので、新たに作成する。
+        if (res === 404) {
+          console.error(
+            "未選択の場合、更新する対象が見つからないので、新たに作成する。"
+          );
+          await addAppearing(fileId, task_id, new_appearing_detail_id);
+        }
+      } else {
+        await deleteAppearing(fileId, task_id);
+      }
+    }
+  }, [optionSelectedDiff]);
+
+  // 巻数あるいはファイル番号が変わるたびにこの関数を実行
+  useMemo(async () => {
+    // console.log("usememo4");
+    const res = await getFileById(vol, file);
+    if (res.message === "None") {
+      setFileName("");
+      setFileId(-1);
+      setFileExist(false);
+    } else {
+      setFileName(res.file_name);
+      setFileId(res.id);
+      setFileExist(true);
+    }
+  }, [vol, file]);
+
+  const optionList = useMemo(() => {
+    const tmpOptionList = [];
+    Object.values(options).forEach((item, idx) => {
+      tmpOptionList.push(
+        <div key={item}>
+          <span>
+            {idx}: {item} /
+          </span>
+          <Button name={item} handleClick={handleDeleteOption} icon="✕" />
+          <Button name={item} handleClick={handleRenameOption} icon="✑" />
+        </div>
+      );
+    });
+    return tmpOptionList;
+  }, [options]);
+
+  const memoQuestions = useMemo(() => {
+    return (
+      <div>
+        <RadioButtonForm2
+          questions={questions}
+          questionsDiff={questionsDiff}
+          options={Object.keys(options).map((item, idx) => {
+            return idx;
+          })}
+          handleDeleteClick={handleDeleteClick}
+          handleRenameClick={handleRenameClick}
+          provideOptionChange={setOptionSelectedDiff}
+          selectedOptionsBefore={selectedOptionBefore}
+        />
+        {questions.length === 0 && <div>該当する人物が見つかりません</div>}
+      </div>
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions, options, selectedOptionBefore]);
+
   return (
     <div>
+      {/* 事件の巻数、話数、名前を登録 */}
       <div>
         <NumberDropdown
           n_st={1}
@@ -418,6 +440,7 @@ const RefineRadio = () => {
         />
       </div>
 
+      {/* 人物の登録、登場の登録・変更 */}
       <div style={{ display: fileExist && optionExist ? "block" : "none" }}>
         <input
           type="text"
@@ -436,6 +459,8 @@ const RefineRadio = () => {
       </div>
 
       <hr></hr>
+
+      {/* 登場の仕方の登録 */}
       <input
         type="text"
         placeholder="add options"
@@ -446,6 +471,7 @@ const RefineRadio = () => {
       </button>
       <div>{optionList}</div>
 
+      {/* 削除・変更時のモーダル */}
       {modalConfig && <MyDialog {...modalConfig} />}
       {modalConfigRename && <MyDialogRename {...modalConfigRename} />}
     </div>
