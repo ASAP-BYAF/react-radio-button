@@ -50,6 +50,18 @@ function RadioButtonForm(props) {
     provideOptionChange({ name: name, value: value });
   };
 
+  const handleResetClick = (name) => {
+    const nameList = document.getElementsByName(name);
+    nameList.forEach((elem) => {
+      elem.checked = false;
+    });
+    setSelectedOptions({
+      ...selectedOptions,
+      [name]: NaN,
+    });
+    provideOptionChange({ name: name, value: NaN });
+  };
+
   const memoQuestions = useMemo(() => {
     const bbb = [];
     bbb.push(options.map((option) => <span key={option}>{option}</span>));
@@ -63,8 +75,13 @@ function RadioButtonForm(props) {
             selectedOption={selectedOptions}
             onChange={handleOptionChange}
           />
-          <Button name={elem2} handleClick={handleDeleteClick} icon="×" />
+          <Button name={elem2} handleClick={handleDeleteClick} icon="✕" />
           <Button name={elem2} handleClick={handleRenameClick} icon="✑" />
+          <Button
+            name={elem2}
+            handleClick={() => handleResetClick(elem2)}
+            icon="↻"
+          />
         </div>
       );
     });

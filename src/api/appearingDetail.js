@@ -47,3 +47,18 @@ export const updateAppearingDetail = async (
   const res = await fetcher(url, data);
   return res;
 };
+
+export const deleteAppearingDetail = async (appearing_detail_name) => {
+  const url = `${process.env.REACT_APP_DB_API_HOST}/appearing_detail_delete`;
+  const data = {
+    method: "DELETE",
+    body: JSON.stringify({
+      appearing_detail: appearing_detail_name,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  };
+  const res = await fetcher(url, data);
+  return res;
+};

@@ -56,12 +56,13 @@ export const updateAppearing = async (
   return res;
 };
 
-export const deleteAppearing = async (appearing_name) => {
+export const deleteAppearing = async (file_id, task_id) => {
   const url = `${process.env.REACT_APP_DB_API_HOST}/appearing_delete`;
   const data = {
     method: "DELETE",
     body: JSON.stringify({
-      appearing_detail: appearing_name,
+      file_id: file_id,
+      task_id: task_id,
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",

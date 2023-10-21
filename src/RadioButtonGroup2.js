@@ -16,7 +16,6 @@ const RadioButtonGroup = ({
             checked={selectedOption[questionName] === option}
             onChange={onChange}
           />
-          {/* {option} */}
         </label>
       ))}
     </span>

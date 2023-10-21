@@ -16,6 +16,7 @@ import NumberDropdown from "./NumberDropdown";
 import { arrayToObject } from "./util/add";
 import {
   addAppearingDetail,
+  deleteAppearingDetail,
   getAppearingDetailByName,
   updateAppearingDetail,
 } from "./api/appearingDetail.js";
@@ -170,13 +171,8 @@ const RefineRadio = () => {
   const handleAddItem = async () => {
     updateQuestions([filterText], "added");
     //　task (人物) を DB にも追加する。
-    await addTaskToDb(filterText);
+    await addTask(filterText);
     setVisibleAdd(false);
-  };
-
-  const addTaskToDb = async (title) => {
-    const res = await addTask(title);
-    return res.id;
   };
 
   const getTaskIdFromDb = async (title) => {
@@ -187,22 +183,26 @@ const RefineRadio = () => {
   useMemo(async () => {
     if (Object.keys(optionSelectedDiff).length !== 0) {
       const task_id = await getTaskIdFromDb(optionSelectedDiff["name"]);
-      const selectedOptionNum =
-        Object.values(options)[optionSelectedDiff["value"]];
-      const new_appearing_detail_id = Object.keys(options).find(
-        (key) => options[key] === selectedOptionNum
-      );
-      const res = await updateAppearing(
-        fileId,
-        task_id,
-        new_appearing_detail_id
-      );
-      // 未選択の場合、更新する対象が見つからないので、新たに作成する。
-      if (res === 404) {
-        console.error(
-          "未選択の場合、更新する対象が見つからないので、新たに作成する。"
+      if (optionSelectedDiff["value"]) {
+        const selectedOptionNum =
+          Object.values(options)[optionSelectedDiff["value"]];
+        const new_appearing_detail_id = Object.keys(options).find(
+          (key) => options[key] === selectedOptionNum
         );
-        await addAppearing(fileId, task_id, new_appearing_detail_id);
+        const res = await updateAppearing(
+          fileId,
+          task_id,
+          new_appearing_detail_id
+        );
+        // 未選択の場合、更新する対象が見つからないので、新たに作成する。
+        if (res === 404) {
+          console.error(
+            "未選択の場合、更新する対象が見つからないので、新たに作成する。"
+          );
+          await addAppearing(fileId, task_id, new_appearing_detail_id);
+        }
+      } else {
+        await deleteAppearing(fileId, task_id);
       }
     }
   }, [optionSelectedDiff]);
@@ -267,8 +267,9 @@ const RefineRadio = () => {
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
       setFileName(ret);
       if (filename === "NoneNone") {
-        const file_id = await addFile(vol, file, ret);
-        setFileId(file_id);
+        const res = await addFile(vol, file, ret);
+        await aaa(options, res.id);
+        setFileId(res.id);
       } else {
         const res = await updateFile(fileId, vol, file, ret);
         setFileId(res.id);
@@ -284,7 +285,7 @@ const RefineRadio = () => {
     );
   };
 
-  const handleDeleteOption = async (appearing_name) => {
+  const handleDeleteOption = async (appearing_detail_name) => {
     const ret = await new Promise((resolve) => {
       setModalConfig({
         onClose: resolve,
@@ -294,9 +295,9 @@ const RefineRadio = () => {
     });
     setModalConfig(undefined);
     if (ret === "ok") {
-      await deleteAppearing(appearing_name);
+      await deleteAppearingDetail(appearing_detail_name);
       const old_id = Object.keys(options).find(
-        (key) => options[key] === appearing_name
+        (key) => options[key] === appearing_detail_name
       );
       const tmp = deleteItemFromObject(options, old_id);
       setOptions(tmp);
@@ -331,7 +332,7 @@ const RefineRadio = () => {
           <span>
             {idx}: {item} /
           </span>
-          <Button name={item} handleClick={handleDeleteOption} icon="×" />
+          <Button name={item} handleClick={handleDeleteOption} icon="✕" />
           <Button name={item} handleClick={handleRenameOption} icon="✑" />
         </div>
       );
