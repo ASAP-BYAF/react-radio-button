@@ -278,13 +278,15 @@ const RefineRadio = () => {
     }
   };
 
-  const handleAddOptions = async () => {
-    const appearing_detail_id = await addAppearingDetail(optionInput);
+  const handleAddOptions = async (newOptionName) => {
+    const res = await addAppearingDetail(newOptionName);
+    const appearing_detail_id = res.id;
     setOptions((prev) =>
-      concatObject(prev, { [appearing_detail_id]: optionInput })
+      concatObject(prev, { [appearing_detail_id]: newOptionName })
     );
   };
 
+  console.log(options);
   const handleDeleteOption = async (appearing_detail_name) => {
     const ret = await new Promise((resolve) => {
       setModalConfig({
@@ -421,7 +423,7 @@ const RefineRadio = () => {
         placeholder="add options"
         onChange={handleOptionInputChange}
       />
-      <button type="button" onClick={handleAddOptions}>
+      <button type="button" onClick={() => handleAddOptions(optionInput)}>
         add
       </button>
       <div>{optionList}</div>
