@@ -131,7 +131,7 @@ const RefineRadio = () => {
   };
 
   const handleOptionInputChange = (event) => {
-    const newText = event.target.value.toLowerCase();
+    const newText = event.target.value;
     setOptionInput(newText);
   };
 
