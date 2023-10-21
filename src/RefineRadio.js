@@ -10,6 +10,7 @@ import {
   deleteTaskById,
   getTaskAll,
   getTaskByTitle,
+  updateTask,
 } from "./api/task.js";
 import { concatObject } from "./util/add.js";
 import { deleteItemFromArray, deleteItemFromObject } from "./util/delete.js";
@@ -163,6 +164,8 @@ const RefineRadio = () => {
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
       updateQuestions([x, ret], "renamed");
+      const res = await getTaskByTitle(x);
+      await updateTask(res.id, ret);
     }
   };
 

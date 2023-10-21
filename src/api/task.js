@@ -37,6 +37,21 @@ export const addTask = async (title) => {
   return res;
 };
 
+export const updateTask = async (id, title) => {
+  const url = `${process.env.REACT_APP_DB_API_HOST}/tasks/${id}`;
+  const data = {
+    method: "PUT",
+    body: JSON.stringify({
+      title: title,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  };
+  const res = await fetcher(url, data);
+  return res;
+};
+
 export const deleteTaskById = async (task_id) => {
   const url = `${process.env.REACT_APP_DB_API_HOST}/tasks/${task_id}`;
   const data = { method: "DELETE" };
