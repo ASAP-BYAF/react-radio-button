@@ -51,17 +51,17 @@ const RefineRadio = () => {
     const fetchData = async () => {
       try {
         const res = await getTaskAll();
-        const tmp = res.map((value2) => value2["title"]);
-        updateQuestions(tmp, "added");
+        const taskNameList = res.map((value2) => value2["title"]);
+        updateQuestions(taskNameList, "added");
       } catch (error) {
         console.error(error);
       }
       try {
         const res = await getAppearingAll();
-        const tmp = res.reduce((accumulator, x) => {
+        const appearingIdNameObj = res.reduce((accumulator, x) => {
           return { ...accumulator, [x["id"]]: x["appearing_detail"] };
         }, {});
-        setOptions(tmp);
+        setOptions(appearingIdNameObj);
       } catch (error) {
         console.error(error);
       }
@@ -290,9 +290,9 @@ const RefineRadio = () => {
       const old_id = Object.keys(options).find(
         (key) => options[key] === appearing_detail_name
       );
-      const tmp = deleteItemFromObject(options, old_id);
-      setOptions(tmp);
-      await getSelectedBefore(tmp, fileId);
+      const newOptions = deleteItemFromObject(options, old_id);
+      setOptions(newOptions);
+      await getSelectedBefore(newOptions, fileId);
     }
   };
 
@@ -315,10 +315,10 @@ const RefineRadio = () => {
     }
   };
 
-  const tmp123 = () => {
-    const tmp = [];
+  const optionList = useMemo(() => {
+    const tmpOptionList = [];
     Object.values(options).forEach((item, idx) => {
-      tmp.push(
+      tmpOptionList.push(
         <div key={item}>
           <span>
             {idx}: {item} /
@@ -328,12 +328,7 @@ const RefineRadio = () => {
         </div>
       );
     });
-    return tmp;
-  };
-
-  const optionList = useMemo(() => {
-    const tmp = tmp123();
-    return tmp;
+    return tmpOptionList;
   }, [options]);
 
   const getSelectedBefore = async (options, file_id) => {
