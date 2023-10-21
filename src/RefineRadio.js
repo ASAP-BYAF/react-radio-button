@@ -123,24 +123,6 @@ const RefineRadio = () => {
     }
   };
 
-  const handleRenameClick = async (x) => {
-    const ret = await new Promise((resolve) => {
-      setModalConfigRename({
-        onClose: resolve,
-        title: "新しい選択肢を入力してください。",
-        message: "空白のみにはできません。",
-        oldText: x,
-      });
-    });
-    setModalConfigRename(undefined);
-    const ret_trimed = ret.trim();
-    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
-      updateQuestions([x, ret], "renamed");
-      const res = await getTaskByTitle(x);
-      await updateTask(res.id, ret);
-    }
-  };
-
   const handleAddItem = async () => {
     updateQuestions([filterText], "added");
     //　task (人物) を DB にも追加する。
@@ -199,7 +181,7 @@ const RefineRadio = () => {
     }
   };
 
-  const handleRenameOption = async (x) => {
+  const toggleRenameModel = async (x) => {
     const ret = await new Promise((resolve) => {
       setModalConfigRename({
         onClose: resolve,
@@ -209,12 +191,27 @@ const RefineRadio = () => {
       });
     });
     setModalConfigRename(undefined);
+    return ret;
+  };
+
+  const handleRenameOption = async (x) => {
+    const ret = await toggleRenameModel(x);
     const ret_trimed = ret.trim();
     if (ret !== "cancel" && ret_trimed) {
       const res = await getAppearingDetailByName(x);
       const appearing_detail_id = res.id;
       await updateAppearingDetail(appearing_detail_id, ret);
       setOptions((prev) => ({ ...prev, [appearing_detail_id]: ret }));
+    }
+  };
+
+  const handleRenameTask = async (x) => {
+    const ret = await toggleRenameModel(x);
+    const ret_trimed = ret.trim();
+    if (ret !== "cancel" && ret_trimed && !allQuestions.includes(ret_trimed)) {
+      updateQuestions([x, ret], "renamed");
+      const res = await getTaskByTitle(x);
+      await updateTask(res.id, ret);
     }
   };
 
@@ -406,7 +403,7 @@ const RefineRadio = () => {
             return idx;
           })}
           handleDeleteClick={handleDeleteClick}
-          handleRenameClick={handleRenameClick}
+          handleRenameClick={handleRenameTask}
           provideOptionChange={setOptionSelectedDiff}
           selectedOptionsBefore={selectedOptionBefore}
         />
