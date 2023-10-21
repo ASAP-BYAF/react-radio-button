@@ -259,7 +259,7 @@ const RefineRadio = () => {
   const confirmFileName = async () => {
     if (fileId < 0) {
       const res = await addFile(vol, file, filename);
-      await aaa(options, res.id);
+      await getSelectedBefore(options, res.id);
       setFileId(res.id);
     } else {
       const res = await updateFile(fileId, vol, file, filename);
@@ -292,7 +292,7 @@ const RefineRadio = () => {
       );
       const tmp = deleteItemFromObject(options, old_id);
       setOptions(tmp);
-      await aaa(tmp, fileId);
+      await getSelectedBefore(tmp, fileId);
     }
   };
 
@@ -336,24 +336,57 @@ const RefineRadio = () => {
     return tmp;
   }, [options]);
 
-  const aaa = async (xxx, file_id) => {
+  const getSelectedBefore = async (options, file_id) => {
+    // 入力
+    //    options = {
+    //               appearingDetailId1: appearingDetailName1,
+    //               appearingDetailId2: appearingDetailName2,
+    //               ...
+    //              }
+    //
+    //    file_id = integer
+    //
+    // 中で定義している変数の説明
+    //     (1) appearingList = [
+    //                      {taskId1: x1, fileId1: y1, appearingDetailId1: z1},
+    //                      {taskId2: x2, fileId2: y2, appearingDetailId2: z2},
+    //                      ...
+    //                     ]
+    //         現在選択されている file に対して登録されているすべての登場の仕方
+    // 　　　　　を集めたもの。
+    //
+    //     (2) taskIdNameObj = {taskId1: taskName1, taskId2: taskName2, ...}
+    //         task に関して id と name を対応付けたオブジェクト。
+    //
+    //     (3) appearingDetailIdList = [appearingDetailId1, appearingDetailId2, ...]
+    //         option に含まれる id を順に並べたもの。id と選択肢の番号を対応付けることが目的。
+    //
+    //     (4) tmpSelectedBefore = {taskName1: optionNum1, taskName2: optionNum2, ....}
+    //         task の名前と登場の仕方を結びつけている。登場の仕方は選択肢の番号に変換されている。
+    //
+    //     処理内容
+    //         (1) の各要素について taskId を (2) を通して taskName に変換、
+    //         appearingDetailId を (3) を通して optionNum に変換し、(4) を作成。
+    //
     try {
-      const rrr = Object.keys(xxx).map((item) => item);
-      const sss = await questions.reduce(async (acc, item) => {
+      const appearlingList = await getAppearingWithFileId(file_id);
+      const taskIdNameObj = await allQuestions.reduce(async (acc, item) => {
         acc = await acc;
-        const tmp = await getTaskIdFromDb(item);
-        acc = { ...acc, [tmp]: item };
+        const taskId = await getTaskIdFromDb(item);
+        acc = { ...acc, [taskId]: item };
         return acc;
       }, {});
-      const appearling_list = await getAppearingWithFileId(file_id);
-      const bbb = appearling_list.reduce((acc, item) => {
-        const task_id = item["task_id"];
-        const task = sss[task_id];
-        const appearing_detail_id = item["appearing_detail_id"];
-        const optionNum = rrr.indexOf(String(appearing_detail_id));
+      const appearingDetailIdList = Object.keys(options);
+      const tmpSelectedBefore = appearlingList.reduce((acc, item) => {
+        const taskId = item["task_id"];
+        const task = taskIdNameObj[taskId];
+        const appearingDetailId = item["appearing_detail_id"];
+        const optionNum = appearingDetailIdList.indexOf(
+          String(appearingDetailId)
+        );
         return { ...acc, [task]: optionNum };
       }, {});
-      setSelectedOptionBefore(bbb);
+      setSelectedOptionBefore(tmpSelectedBefore);
     } catch {
       console.error(
         "Cannot access getAppearingWithFileIdFromDb before initialization"
@@ -363,7 +396,7 @@ const RefineRadio = () => {
 
   useMemo(async () => {
     if (fileExist && optionExist) {
-      await aaa(options, fileId);
+      await getSelectedBefore(options, fileId);
     }
   }, [fileId, fileExist, optionExist]);
 
