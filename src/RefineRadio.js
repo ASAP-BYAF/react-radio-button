@@ -2,11 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { MyDialog } from "./myDialog.js";
 import { MyDialogRename } from "./myDialogRename.js";
 import RadioButtonForm2 from "./RadioButtonForm2";
-// import RadioButtonForm from "./RadioButtonForm";
-import { fetcher } from "./api/fetcher.js";
 import {
   addTask,
-  deleteTask,
   deleteTaskById,
   getTaskAll,
   getTaskByTitle,
@@ -17,7 +14,6 @@ import { deleteItemFromArray, deleteItemFromObject } from "./util/delete.js";
 import { renameItemInArray } from "./util/rename.js";
 import NumberDropdown from "./NumberDropdown";
 import { arrayToObject } from "./util/add";
-import { getByAltText, getByTitle } from "@testing-library/react";
 import {
   addAppearingDetail,
   getAppearingDetailByName,
