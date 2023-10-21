@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
-import RadioButtonGroup from "./RadioButtonGroup";
+import RadioButtonGroup2 from "./RadioButtonGroup2";
 import { deleteItemFromObject } from "./util/delete";
 import { renameKeyInObject } from "./util/rename";
 import { arrayToObject, concatObject } from "./util/add";
+import Button from "./button/Button.js";
 
 function RadioButtonForm(props) {
   const {
@@ -51,36 +52,19 @@ function RadioButtonForm(props) {
 
   const memoQuestions = useMemo(() => {
     const bbb = [];
+    bbb.push(options.map((option) => <span key={option}>{option}</span>));
     questions.forEach((elem2, idx) => {
       bbb.push(
         <div key={elem2}>
-          <RadioButtonGroup
+          <RadioButtonGroup2
             key={elem2}
             questionName={elem2}
             options={options}
             selectedOption={selectedOptions}
             onChange={handleOptionChange}
           />
-          <button
-            className="deleteButton"
-            type="button"
-            name={elem2}
-            onClick={(e) => {
-              handleDeleteClick(e.target.name);
-            }}
-          >
-            delete
-          </button>
-          <button
-            className="renameButton"
-            type="button"
-            name={elem2}
-            onClick={(e) => {
-              handleRenameClick(e.target.name);
-            }}
-          >
-            rename
-          </button>
+          <Button name={elem2} handleClick={handleDeleteClick} icon="×" />
+          <Button name={elem2} handleClick={handleRenameClick} icon="✑" />
         </div>
       );
     });

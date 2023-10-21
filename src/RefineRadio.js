@@ -27,6 +27,7 @@ import {
   updateAppearing,
 } from "./api/appearing.js";
 import { addFile, getFileById, updateFile } from "./api/file.js";
+import Button from "./button/Button.js";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -283,43 +284,6 @@ const RefineRadio = () => {
     );
   };
 
-  const tmp123 = () => {
-    const tmp = [];
-    Object.values(options).forEach((item, idx) => {
-      tmp.push(
-        <div key={item}>
-          <span>
-            {idx}: {item} /
-          </span>
-          <button
-            type="button"
-            name={item}
-            onClick={(e) => {
-              handleDeleteOption(e.target.name);
-            }}
-          >
-            delete
-          </button>
-          <button
-            type="button"
-            name={item}
-            onClick={(e) => {
-              handleRenameOption(e.target.name);
-            }}
-          >
-            rename
-          </button>
-        </div>
-      );
-    });
-    return tmp;
-  };
-
-  const optionList = useMemo(() => {
-    const tmp = tmp123();
-    return tmp;
-  }, [options]);
-
   const handleDeleteOption = async (appearing_name) => {
     const ret = await new Promise((resolve) => {
       setModalConfig({
@@ -358,6 +322,27 @@ const RefineRadio = () => {
       setOptions((prev) => ({ ...prev, [appearing_detail_id]: ret }));
     }
   };
+
+  const tmp123 = () => {
+    const tmp = [];
+    Object.values(options).forEach((item, idx) => {
+      tmp.push(
+        <div key={item}>
+          <span>
+            {idx}: {item} /
+          </span>
+          <Button name={item} handleClick={handleDeleteOption} icon="×" />
+          <Button name={item} handleClick={handleRenameOption} icon="✑" />
+        </div>
+      );
+    });
+    return tmp;
+  };
+
+  const optionList = useMemo(() => {
+    const tmp = tmp123();
+    return tmp;
+  }, [options]);
 
   const aaa = async (xxx, file_id) => {
     try {
