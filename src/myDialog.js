@@ -7,13 +7,6 @@ import {
   Button,
 } from "@mui/material";
 
-// export type MyDialogProps = {
-//   onClose: (value: string) => void
-//  title?: string
-//  message?: string
-// }
-
-// export function MyDialog(props: MyDialogProps) {
 export function MyDialog(props) {
   const { onClose, title, message } = props;
 

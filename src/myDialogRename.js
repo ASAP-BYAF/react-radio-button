@@ -8,13 +8,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-// export type MyDialogProps = {
-//   onClose: (value: string) => void
-//  title?: string
-//  message?: string
-// }
-
-// export function MyDialog(props: MyDialogProps) {
 export function MyDialogRename(props) {
   const { onClose, title, message, oldText } = props;
   const [filterText, setFilterText] = useState(oldText);
