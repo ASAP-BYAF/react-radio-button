@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import RadioButtonGroup2 from "./RadioButtonGroup2";
+import RadioButtonGroup from "./RadioButtonGroup";
 import { deleteItemFromObject } from "./util/delete";
 import { renameKeyInObject } from "./util/rename";
 import { arrayToObject, concatObject } from "./util/add";
@@ -69,7 +69,7 @@ function RadioButtonForm(props) {
     questions.forEach((elem, idx) => {
       tmpOptionList.push(
         <div key={elem}>
-          <RadioButtonGroup2
+          <RadioButtonGroup
             key={elem}
             questionName={elem}
             options={options}

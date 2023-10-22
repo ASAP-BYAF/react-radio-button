@@ -5,8 +5,8 @@ const RadioButtonGroup = ({
   onChange,
 }) => {
   return (
-    <div>
-      ===== {questionName} ===== :
+    <span>
+      {questionName}:
       {options.map((option) => (
         <label key={option}>
           <input
@@ -16,10 +16,9 @@ const RadioButtonGroup = ({
             checked={selectedOption[questionName] === option}
             onChange={onChange}
           />
-          {option}
         </label>
       ))}
-    </div>
+    </span>
   );
 };
 
