@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import RadioButtonGroup2 from "./RadioButtonGroup2";
 import { deleteItemFromObject } from "./util/delete";
 import { renameKeyInObject } from "./util/rename";
@@ -23,7 +23,7 @@ function RadioButtonForm(props) {
     setSelectedOptions(selectedOptionsBefore);
   }, [selectedOptionsBefore]);
 
-  useEffect(() => {
+  useMemo(() => {
     const sign = questionsDiff[0];
     const diff = questionsDiff[1];
     if (sign === "added") {
@@ -62,29 +62,31 @@ function RadioButtonForm(props) {
   };
 
   const memoQuestions = useMemo(() => {
-    const bbb = [];
-    bbb.push(options.map((option) => <span key={option}>{option}</span>));
-    questions.forEach((elem2, idx) => {
-      bbb.push(
-        <div key={elem2}>
+    const tmpOptionList = [];
+    tmpOptionList.push(
+      options.map((option) => <span key={option}>{option}</span>)
+    );
+    questions.forEach((elem, idx) => {
+      tmpOptionList.push(
+        <div key={elem}>
           <RadioButtonGroup2
-            key={elem2}
-            questionName={elem2}
+            key={elem}
+            questionName={elem}
             options={options}
             selectedOption={selectedOptions}
             onChange={handleOptionChange}
           />
-          <Button name={elem2} handleClick={handleDeleteClick} icon="✕" />
-          <Button name={elem2} handleClick={handleRenameClick} icon="✑" />
+          <Button name={elem} handleClick={handleDeleteClick} icon="✕" />
+          <Button name={elem} handleClick={handleRenameClick} icon="✑" />
           <Button
-            name={elem2}
-            handleClick={() => handleResetClick(elem2)}
+            name={elem}
+            handleClick={() => handleResetClick(elem)}
             icon="↻"
           />
         </div>
       );
     });
-    return bbb;
+    return tmpOptionList;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, selectedOptions, options]);
 
