@@ -1,15 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
-import RadioButtonGroup from "./RadioButtonGroup";
-import {
-  deleteItemFromObject,
-  deleteItemFromArrayInObject,
-} from "./util/delete";
-import { renameItemInArrayInObject, renameKeyInObject } from "./util/rename";
-import {
-  arrayToObject,
-  concatArraytoArrayInObject,
-  concatObject,
-} from "./util/add";
+import RadioButtonGroup2 from "./RadioButtonGroup2";
+import { deleteItemFromObject } from "./util/delete";
+import { renameKeyInObject } from "./util/rename";
+import { arrayToObject, concatObject } from "./util/add";
+import Button from "./button/Button.js";
 
 function RadioButtonForm(props) {
   const {
@@ -18,54 +12,29 @@ function RadioButtonForm(props) {
     options,
     handleDeleteClick = () => {},
     handleRenameClick = () => {},
+    provideOptionChange = () => {},
+    selectedOptionsBefore = {},
   } = props;
 
-  const [selectedOptions, setSelectedOptions] = useState(
-    arrayToObject(questions, options[0])
-    // questions.reduce((accumulator, value) => {
-    //   return { ...accumulator, [value]: options[0] };
-    // }, {})
-  );
-  const initQuestionsGroupByOptions = options.reduce(
-    (accumulator, value, idx) => {
-      return { ...accumulator, [value]: idx === 0 ? questions.concat() : [] };
-    },
-    {}
-  );
-  const [questionsGroupByOptions, setQuestionsGroupByOptions] = useState(
-    initQuestionsGroupByOptions
-  );
+  const [selectedOptions, setSelectedOptions] = useState({});
+
+  // 選択状況を得たときはそれを各選択制の初期値に設定します。
+  useMemo(() => {
+    setSelectedOptions(selectedOptionsBefore);
+  }, [selectedOptionsBefore]);
 
   useEffect(() => {
     const sign = questionsDiff[0];
     const diff = questionsDiff[1];
     if (sign === "added") {
       setSelectedOptions((prev) =>
-        concatObject(prev, arrayToObject(diff, options[0]))
-      );
-
-      // Object.keys(prev).reduce((accumulator, key, idx) => {
-      //   return {
-      //     ...accumulator,
-      //     [key]: idx === 0 ? [...prev[key], ...diff] : prev[key],
-      //   };
-      // }, {})
-      setQuestionsGroupByOptions((prev) =>
-        concatArraytoArrayInObject(prev, options[0], diff)
+        concatObject(prev, arrayToObject(diff, NaN))
       );
     } else if (sign === "deleted") {
-      const selectedOption = selectedOptions[diff];
-      setQuestionsGroupByOptions((prev) =>
-        deleteItemFromArrayInObject(prev, selectedOption, diff)
-      );
       setSelectedOptions((prev) => deleteItemFromObject(prev, diff));
     } else if (sign === "renamed") {
       const oldValue = diff[0];
       const newValue = diff[1];
-      const selectedOption = selectedOptions[oldValue];
-      setQuestionsGroupByOptions((prev) =>
-        renameItemInArrayInObject(prev, selectedOption, oldValue, newValue)
-      );
       setSelectedOptions((prev) => renameKeyInObject(prev, oldValue, newValue));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,77 +44,51 @@ function RadioButtonForm(props) {
     const { name, value } = e.target;
     setSelectedOptions({
       ...selectedOptions,
-      [name]: value,
+      [name]: Number(value),
     });
-    setQuestionsGroupByOptions((prev) => updatetmp(prev, name, value));
+    provideOptionChange({ name: name, value: value });
   };
 
-  // 選択肢に対する質問のリストを更新。
-  // 直前まで選択されていた選択肢のリストから質問を削除し、
-  // 新たに選択された選択肢のリストに質問を追加。
-  // 例: {"option1": [question1, question2], "option2"}
-  //       |
-  //       |  question1 の選択状況が option1 から option2 に変更。
-  //       |
-  //       `-> {"option1": [question1], "option2":[question2]}
-  const updatetmp = (prev, name, value) => {
-    const beforeValue = selectedOptions[name];
-    const index = prev[beforeValue].indexOf(name);
-    prev[beforeValue].splice(index, 1);
-    prev[value].push(name);
-    return prev;
+  const handleResetClick = (name) => {
+    const nameList = document.getElementsByName(name);
+    nameList.forEach((elem) => {
+      elem.checked = false;
+    });
+    setSelectedOptions({
+      ...selectedOptions,
+      [name]: NaN,
+    });
+    provideOptionChange({ name: name, value: NaN });
   };
 
   const memoQuestions = useMemo(() => {
     const bbb = [];
-    options.forEach((elem, idx) => {
-      const target1 = questionsGroupByOptions[elem];
-      target1.forEach((elem2) => {
-        if (questions.includes(elem2)) {
-          bbb.push(
-            <div key={elem2}>
-              <RadioButtonGroup
-                key={elem2}
-                questionName={elem2}
-                options={options}
-                selectedOption={selectedOptions}
-                onChange={handleOptionChange}
-              />
-              <button
-                className="deleteButton"
-                type="button"
-                name={elem2}
-                onClick={(e) => {
-                  handleDeleteClick(e.target.name);
-                }}
-              >
-                delete
-              </button>
-              <button
-                className="renameButton"
-                type="button"
-                name={elem2}
-                onClick={(e) => {
-                  handleRenameClick(e.target.name);
-                }}
-              >
-                rename
-              </button>
-            </div>
-          );
-        }
-      });
+    bbb.push(options.map((option) => <span key={option}>{option}</span>));
+    questions.forEach((elem2, idx) => {
+      bbb.push(
+        <div key={elem2}>
+          <RadioButtonGroup2
+            key={elem2}
+            questionName={elem2}
+            options={options}
+            selectedOption={selectedOptions}
+            onChange={handleOptionChange}
+          />
+          <Button name={elem2} handleClick={handleDeleteClick} icon="✕" />
+          <Button name={elem2} handleClick={handleRenameClick} icon="✑" />
+          <Button
+            name={elem2}
+            handleClick={() => handleResetClick(elem2)}
+            icon="↻"
+          />
+        </div>
+      );
     });
     return bbb;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, selectedOptions]);
+  }, [questions, selectedOptions, options]);
 
-  return (
-    <form onSubmit={() => {}}>
-      {memoQuestions}
-      <button type="submit">送信</button>
-    </form>
-  );
+  return <div>{memoQuestions}</div>;
 }
 
 export default RadioButtonForm;

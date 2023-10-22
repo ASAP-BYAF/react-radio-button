@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { MyDialog } from "./myDialog.js";
 import { MyDialogRename } from "./myDialogRename.js";
-import RadioButtonForm2 from "./RadioButtonForm2";
+import RadioButtonForm from "./RadioButtonForm";
 import {
   addTask,
   deleteTaskById,
@@ -368,7 +368,6 @@ const RefineRadio = () => {
     } else {
       setFileExist(false);
     }
-    console.log("fileId is changed");
   }, [fileId]);
 
   const optionList = useMemo(() => {
@@ -390,7 +389,7 @@ const RefineRadio = () => {
   const memoQuestions = useMemo(() => {
     return (
       <div>
-        <RadioButtonForm2
+        <RadioButtonForm
           questions={questions}
           questionsDiff={questionsDiff}
           options={Object.keys(options).map((item, idx) => {
