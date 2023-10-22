@@ -58,7 +58,7 @@ const RefineRadio = () => {
     const fetchData = async () => {
       try {
         const res = await getTaskAll();
-        const taskNameList = res.map((value2) => value2["title"]);
+        const taskNameList = res.map((item) => item["title"]);
         updateQuestions(taskNameList, "added");
       } catch (error) {
         console.error(error);
@@ -77,6 +77,18 @@ const RefineRadio = () => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getTaskIdFromDb = async (title) => {
+    const res = await getTaskByTitle(title);
+    return res.id;
+  };
+
+  const handleVolNumChange = (x) => {
+    setVol(x);
+  };
+  const handleFileNumChange = (x) => {
+    setFile(x);
+  };
 
   const handleInputChange = (event) => {
     const newText = event.target.value.toLowerCase();
@@ -97,35 +109,6 @@ const RefineRadio = () => {
     }
   };
 
-  const handleFileNameChange = (e) => {
-    const newFilename = e.target.value;
-    setFileName(newFilename);
-  };
-
-  const handleOptionInputChange = (event) => {
-    const newText = event.target.value;
-    setOptionInput(newText);
-  };
-
-  const handleAddItem = async () => {
-    updateQuestions([filterText], "added");
-    //　task (人物) を DB にも追加する。
-    await addTask(filterText);
-    setVisibleAdd(false);
-  };
-
-  const getTaskIdFromDb = async (title) => {
-    const res = await getTaskByTitle(title);
-    return res.id;
-  };
-
-  const handleVolNumChange = (x) => {
-    setVol(x);
-  };
-  const handleFileNumChange = (x) => {
-    setFile(x);
-  };
-
   const confirmFileName = async () => {
     if (fileId < 0) {
       const res = await addFile(vol, file, filename);
@@ -134,15 +117,21 @@ const RefineRadio = () => {
       const res = await updateFile(fileId, vol, file, filename);
       setFileId(res.id);
     }
-    setFileExist(true);
   };
 
-  const handleAddOptions = async (newOptionName) => {
+  const handleAddOption = async (newOptionName) => {
     const res = await addAppearingDetail(newOptionName);
     const appearing_detail_id = res.id;
     setOptions((prev) =>
       concatObject(prev, { [appearing_detail_id]: newOptionName })
     );
+  };
+
+  const handleAddTask = async () => {
+    updateQuestions([filterText], "added");
+    //　task (人物) を DB にも追加する。
+    await addTask(filterText);
+    setVisibleAdd(false);
   };
 
   const toggleRenameModel = async (x) => {
@@ -367,13 +356,20 @@ const RefineRadio = () => {
     if (res.message === "None") {
       setFileName("");
       setFileId(-1);
-      setFileExist(false);
     } else {
       setFileName(res.file_name);
       setFileId(res.id);
-      setFileExist(true);
     }
   }, [vol, file]);
+
+  useMemo(() => {
+    if (fileId > 0) {
+      setFileExist(true);
+    } else {
+      setFileExist(false);
+    }
+    console.log("fileId is changed");
+  }, [fileId]);
 
   const optionList = useMemo(() => {
     const tmpOptionList = [];
@@ -427,7 +423,13 @@ const RefineRadio = () => {
           label="話"
           handleChange={handleFileNumChange}
         />
-        <input type="text" value={filename} onChange={handleFileNameChange} />
+        <input
+          type="text"
+          value={filename}
+          onChange={(e) => {
+            setFileName(e.target.value);
+          }}
+        />
         <Button
           name="confirmButton"
           handleClick={confirmFileName}
@@ -445,7 +447,7 @@ const RefineRadio = () => {
         <button
           className="addQuestionButton"
           type="button"
-          onClick={handleAddItem}
+          onClick={handleAddTask}
           style={{ display: visibleAdd ? "inline-block" : "none" }}
         >
           add
@@ -459,9 +461,11 @@ const RefineRadio = () => {
       <input
         type="text"
         placeholder="add options"
-        onChange={handleOptionInputChange}
+        onChange={(e) => {
+          setOptionInput(e.target.value);
+        }}
       />
-      <button type="button" onClick={() => handleAddOptions(optionInput)}>
+      <button type="button" onClick={() => handleAddOption(optionInput)}>
         add
       </button>
       <div>{optionList}</div>
