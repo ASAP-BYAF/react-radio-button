@@ -316,6 +316,7 @@ const RefineRadio = () => {
     // (1) fileId, fileExist (usememo4 内)
     // (2) optionExist の順 (useeffect -> usememo1 内)
     // という順序で変更されるから。
+    // fileExist は一応入れているだけ。
     if (fileExist && optionExist) {
       await getSelectedBefore(options, fileId);
     }
