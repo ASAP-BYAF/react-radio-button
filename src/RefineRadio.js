@@ -29,6 +29,7 @@ import {
 } from "./api/appearing.js";
 import { addFile, getFileById, updateFile } from "./api/file.js";
 import Button from "./button/Button.js";
+import Header from "./Header.js";
 
 const RefineRadio = () => {
   const [questions, setQuestions] = useState([]);
@@ -409,6 +410,8 @@ const RefineRadio = () => {
 
   return (
     <div>
+      <Header />
+
       {/* 事件の巻数、話数、名前を登録 */}
       <div>
         <NumberDropdown

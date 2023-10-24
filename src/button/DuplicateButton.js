@@ -45,7 +45,7 @@ const ParentComponent = ({ onChangeAllValue }) => {
         <button onClick={handleGetAllValues}>検索</button>
       </div>
       <div>
-        <h2>以下の人物で AND 検索しました</h2>
+        <h3>以下の人物で AND 検索しました</h3>
         <p>
           <pre>
             {allInputValues.length === 0 || allInputValues.includes(undefined)

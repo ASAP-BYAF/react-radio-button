@@ -3,6 +3,7 @@ import { getAll } from "./api/search";
 import { getFilteredByTask } from "./api/search";
 import makeGroupedList from "./GroupedList";
 import ParentComponent from "./button/DuplicateButton";
+import Header from "./Header";
 
 const Search = () => {
   const [appearingList, setAppearingList] = useState([]);
@@ -33,6 +34,7 @@ const Search = () => {
 
   return (
     <div>
+      <Header />
       <ParentComponent onChangeAllValue={setFilterList} />
       <ul>{memoAppearingList}</ul>
     </div>
