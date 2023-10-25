@@ -1,13 +1,15 @@
-const makeGroupedList = (data) => {
+import AccordionList from "./AccordionList";
+
+const makeGroupedList = (data, toggleAccordion, openIndex) => {
   // マップしてJSX生成
   const listItems = Object.entries(data).map(([volNum, fileNumGroup]) => (
-    <li key={volNum}>
-      {`${volNum} 巻`}
+    <AccordionList index={volNum} label={`${volNum} 巻`}>
       <ul key={volNum}>
         {Object.entries(fileNumGroup).map(([fileNum, items]) => (
-          <li key={fileNum}>
-            {`${fileNum} 話`}
-            {`: ${items[0]["file_name"]}`}
+          <AccordionList
+            index={fileNum}
+            label={`${fileNum}話: ${items[0]["file_name"]}`}
+          >
             <ul key={fileNum}>
               {items.map((item, index) => (
                 <li key={index}>
@@ -15,10 +17,10 @@ const makeGroupedList = (data) => {
                 </li>
               ))}
             </ul>
-          </li>
+          </AccordionList>
         ))}
       </ul>
-    </li>
+    </AccordionList>
   ));
   return listItems;
 };
