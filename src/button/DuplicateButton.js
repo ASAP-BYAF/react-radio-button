@@ -23,7 +23,7 @@ const ParentComponent = ({ onChangeAllValue }) => {
       allValues.push(component.inputValue);
     });
     setAllInputValues(allValues);
-    if (allInputValues.length > 0 && !allInputValues.includes(undefined)) {
+    if (allValues.length > 0 && !allValues.includes(undefined)) {
       onChangeAllValue(allValues);
     }
   };
