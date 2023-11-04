@@ -1,28 +1,25 @@
 import React, { useState } from "react";
 
-const AccordionList = ({ index, label, children }) => {
-  const [openIndex, setOpenIndex] = useState([]);
+const AccordionList = ({
+  index,
+  label,
+  children,
+  className = "",
+  initOpen = false,
+}) => {
+  const [open, setOpen] = useState(initOpen);
 
-  const toggleAccordion = (index) => {
-    if (openIndex.includes(index)) {
-      // クリックしたアコーディオンを閉じる
-      const newOpenIndex = openIndex.filter((item) => item !== index);
-      setOpenIndex(newOpenIndex);
-    } else {
-      // クリックしたアコーディオンを開く
-      const newOpenIndex = [...openIndex, index];
-      setOpenIndex(newOpenIndex);
-    }
+  const toggleAccordion = () => {
+    setOpen((prev) => !prev);
   };
 
   return (
-    <li key={index}>
+    <li key={index} className={className}>
       {label}
-      {/* {`: ${items[0]["file_name"]}`} */}
-      <span className="accordion-header" onClick={() => toggleAccordion(index)}>
-        {openIndex.includes(index) ? "▲" : "▼"}
+      <span className="accordion-header" onClick={() => toggleAccordion()}>
+        {open ? "▲" : "▼"}
       </span>
-      {openIndex.includes(index) && <React.Fragment>{children}</React.Fragment>}
+      {open && <React.Fragment>{children}</React.Fragment>}
     </li>
   );
 };
