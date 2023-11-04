@@ -1,4 +1,5 @@
 import "./App.css";
+import "./output.css";
 import RefineRadio from "./RefineRadio";
 import Search from "./Search";
 import Home from "./Home";
